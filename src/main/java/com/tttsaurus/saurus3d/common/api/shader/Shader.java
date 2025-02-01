@@ -1,5 +1,6 @@
 package com.tttsaurus.saurus3d.common.api.shader;
 
+import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformField;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import java.util.List;

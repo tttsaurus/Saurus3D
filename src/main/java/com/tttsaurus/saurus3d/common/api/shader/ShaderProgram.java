@@ -1,7 +1,9 @@
 package com.tttsaurus.saurus3d.common.api.shader;
 
 import com.tttsaurus.saurus3d.common.api.CommonBuffers;
+import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformField;
 import org.apache.commons.lang3.time.StopWatch;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
@@ -10,7 +12,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ShaderProgram
+public class ShaderProgram implements Comparable<ShaderProgram>
 {
     private double cpuTimeMs;
     private double gpuTimeMs;
@@ -27,7 +29,7 @@ public class ShaderProgram
     {
         StringBuilder builder = new StringBuilder();
 
-        builder.append("===Shader Program Setup Report===\n").append("Shaders:\n");
+        builder.append("\n===Shader Program Setup Report===\n").append("Shaders:\n");
         for (Shader shader: shaders)
         {
             builder
@@ -162,5 +164,11 @@ public class ShaderProgram
             GL20.glDeleteShader(shaderID);
         }
         GL20.glDeleteProgram(programID);
+    }
+
+    @Override
+    public int compareTo(@NotNull ShaderProgram o)
+    {
+        return Integer.compare(programID, o.programID);
     }
 }
