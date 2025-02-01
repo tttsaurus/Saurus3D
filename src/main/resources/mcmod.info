@@ -1,0 +1,12 @@
+[{
+    "modid": "${modid}",
+    "name": "${modname}",
+    "description": "A render lib for 3D objects in Minecraft",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "logoFile": "",
+    "url": "",
+    "authorList": [],
+    "credits": "",
+    "dependencies": []
+}]
