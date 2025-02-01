@@ -51,18 +51,18 @@ public final class UniformParseUtils
             else if (rawType.equals("i" + symbol))
             {
                 if (array)
-                    type.setSubType(cloned.setVariant(Variant.I));
+                    type.setSubType(cloned.setVariant(Variant.I)).setVariant(Variant.I);
                 else
                     type = cloned.setVariant(Variant.I);
-                type.setSymbol("i" + symbol);
+                type.setSymbol(symbol);
             }
             else if (rawType.equals("u" + symbol))
             {
                 if (array)
-                    type.setSubType(cloned.setVariant(Variant.U));
+                    type.setSubType(cloned.setVariant(Variant.U)).setVariant(Variant.U);
                 else
                     type = cloned.setVariant(Variant.U);
-                type.setSymbol("u" + symbol);
+                type.setSymbol(symbol);
             }
         }
 

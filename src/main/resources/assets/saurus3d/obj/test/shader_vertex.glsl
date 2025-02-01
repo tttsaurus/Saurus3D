@@ -2,7 +2,7 @@
 
 uniform mat4 u_transform;
 uniform int testArray[2];
-uniform int testArray2[3];
+uniform ivec2 testArray2[3];
 
 attribute vec3 a_position;
 

@@ -9,48 +9,81 @@ import java.util.List;
 // should only get this from UniformParseUtils
 public class UniformType
 {
-    public static final UniformType UNKNOWN = new UniformType("NO_SYMBOL", UniformTypeKind.UNKNOWN);
-    public static final UniformType ARRAY = new UniformType("NO_SYMBOL", UniformTypeKind.ARRAY);
+    protected static final UniformType UNKNOWN = new UniformType("NO_SYMBOL", UniformTypeKind.UNKNOWN);
+    protected static final UniformType ARRAY = new UniformType("NO_SYMBOL", UniformTypeKind.ARRAY);
 
-    public static final List<UniformType> TYPE_PRESET = new ArrayList<>(Arrays.asList(
+    public static final String SYMBOL_FLOAT = "float";
+    public static final String SYMBOL_INT = "int";
+    public static final String SYMBOL_UINT = "unit";
+    public static final String SYMBOL_BOOL = "bool";
 
-            new UniformType("float", UniformTypeKind.SCALAR),
-            new UniformType("int", UniformTypeKind.SCALAR),
-            new UniformType("uint", UniformTypeKind.SCALAR),
-            new UniformType("bool", UniformTypeKind.SCALAR),
+    public static final String SYMBOL_VEC2 = "vec2";
+    public static final String SYMBOL_VEC3 = "vec3";
+    public static final String SYMBOL_VEC4 = "vec4";
 
-            new UniformType("vec2", UniformTypeKind.VECTOR),
-            new UniformType("vec3", UniformTypeKind.VECTOR),
-            new UniformType("vec4", UniformTypeKind.VECTOR),
+    public static final String SYMBOL_MAT2 = "mat2";
+    public static final String SYMBOL_MAT3 = "mat3";
+    public static final String SYMBOL_MAT4 = "mat4";
 
-            new UniformType("mat2", UniformTypeKind.MATRIX),
-            new UniformType("mat3", UniformTypeKind.MATRIX),
-            new UniformType("mat4", UniformTypeKind.MATRIX),
+    public static final String SYMBOL_SAMPLER_1D = "sampler1D";
+    public static final String SYMBOL_SAMPLER_2D = "sampler2D";
+    public static final String SYMBOL_SAMPLER_3D = "sampler3D";
+    public static final String SYMBOL_SAMPLER_CUBE = "samplerCube";
+    public static final String SYMBOL_SAMPLER_2D_ARRAY = "sampler2DArray";
+    public static final String SYMBOL_SAMPLER_CUBE_ARRAY = "samplerCubeArray";
+    public static final String SYMBOL_SAMPLER_1D_SHADOW = "sampler1DShadow";
+    public static final String SYMBOL_SAMPLER_2D_SHADOW = "sampler2DShadow";
+    public static final String SYMBOL_SAMPLER_CUBE_SHADOW = "samplerCubeShadow";
+    public static final String SYMBOL_SAMPLER_2D_MS = "sampler2DMS";
+    public static final String SYMBOL_SAMPLER_2D_ARRAY_SHADOW = "sampler2DArrayShadow";
 
-            new UniformType("sampler1D", UniformTypeKind.SAMPLER),
-            new UniformType("sampler2D", UniformTypeKind.SAMPLER),
-            new UniformType("sampler3D", UniformTypeKind.SAMPLER),
-            new UniformType("samplerCube", UniformTypeKind.SAMPLER),
-            new UniformType("sampler2DArray", UniformTypeKind.SAMPLER),
-            new UniformType("samplerCubeArray", UniformTypeKind.SAMPLER),
-            new UniformType("sampler1DShadow", UniformTypeKind.SAMPLER),
-            new UniformType("sampler2DShadow", UniformTypeKind.SAMPLER),
-            new UniformType("samplerCubeShadow", UniformTypeKind.SAMPLER),
-            new UniformType("sampler2DMS", UniformTypeKind.SAMPLER),
-            new UniformType("sampler2DArrayShadow", UniformTypeKind.SAMPLER),
+    public static final String SYMBOL_ATOMIC_UINT = "atomic_uint";
 
-            new UniformType("atomic_uint", UniformTypeKind.ATOMIC_COUNTER),
+    public static final String SYMBOL_IMAGE_2D = "image2D";
+    public static final String SYMBOL_IMAGE_3D = "image3D";
+    public static final String SYMBOL_IMAGE_2D_ARRAY = "image2DArray";
+    public static final String SYMBOL_IMAGE_CUBE = "imageCube";
+    public static final String SYMBOL_IMAGE_2D_ARRAY_SHADOW = "image2DArrayShadow";
 
-            new UniformType("image2D", UniformTypeKind.IMAGE),
-            new UniformType("image3D", UniformTypeKind.IMAGE),
-            new UniformType("image2DArray", UniformTypeKind.IMAGE),
-            new UniformType("imageCube", UniformTypeKind.IMAGE),
-            new UniformType("image2DArrayShadow", UniformTypeKind.IMAGE)
+    protected static final List<UniformType> TYPE_PRESET = new ArrayList<>(Arrays.asList(
+
+            new UniformType(SYMBOL_FLOAT, UniformTypeKind.SCALAR),
+            new UniformType(SYMBOL_INT, UniformTypeKind.SCALAR),
+            new UniformType(SYMBOL_UINT, UniformTypeKind.SCALAR),
+            new UniformType(SYMBOL_BOOL, UniformTypeKind.SCALAR),
+
+            new UniformType(SYMBOL_VEC2, UniformTypeKind.VECTOR),
+            new UniformType(SYMBOL_VEC3, UniformTypeKind.VECTOR),
+            new UniformType(SYMBOL_VEC4, UniformTypeKind.VECTOR),
+
+            new UniformType(SYMBOL_MAT2, UniformTypeKind.MATRIX),
+            new UniformType(SYMBOL_MAT3, UniformTypeKind.MATRIX),
+            new UniformType(SYMBOL_MAT4, UniformTypeKind.MATRIX),
+
+            new UniformType(SYMBOL_SAMPLER_1D, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_2D, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_3D, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_CUBE, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_2D_ARRAY, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_CUBE_ARRAY, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_1D_SHADOW, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_2D_SHADOW, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_CUBE_SHADOW, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_2D_MS, UniformTypeKind.SAMPLER),
+            new UniformType(SYMBOL_SAMPLER_2D_ARRAY_SHADOW, UniformTypeKind.SAMPLER),
+
+            new UniformType(SYMBOL_ATOMIC_UINT, UniformTypeKind.ATOMIC_COUNTER),
+
+            new UniformType(SYMBOL_IMAGE_2D, UniformTypeKind.IMAGE),
+            new UniformType(SYMBOL_IMAGE_3D, UniformTypeKind.IMAGE),
+            new UniformType(SYMBOL_IMAGE_2D_ARRAY, UniformTypeKind.IMAGE),
+            new UniformType(SYMBOL_IMAGE_CUBE, UniformTypeKind.IMAGE),
+            new UniformType(SYMBOL_IMAGE_2D_ARRAY_SHADOW, UniformTypeKind.IMAGE)
     ));
 
     private String symbol;
     private UniformTypeKind kind;
-    private Variant variant = Variant.F;
+    private Variant variant = Variant.DEFAULT;
     private UniformType subType = null;
     private int arrayLength = 0;
 
@@ -93,7 +126,7 @@ public class UniformType
         UniformType temp;
 
         StringBuilder builder = new StringBuilder();
-        builder.append(symbol);
+        builder.append(variant.getPrefix()).append(symbol);
 
         temp = this;
 

@@ -3,11 +3,19 @@ package com.tttsaurus.saurus3d.common.api.shader.uniform;
 public enum Variant
 {
     // float
-    F,
+    DEFAULT(""),
 
     // int
-    I,
+    I("i"),
 
     // uint
-    U
+    U("u");
+
+    private final String prefix;
+    Variant(String prefix)
+    {
+        this.prefix = prefix;
+    }
+
+    public String getPrefix() { return prefix; }
 }
