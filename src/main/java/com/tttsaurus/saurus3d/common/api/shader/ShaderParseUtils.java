@@ -1,6 +1,5 @@
 package com.tttsaurus.saurus3d.common.api.shader;
 
-import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformField;
 import java.util.ArrayList;
 import java.util.List;

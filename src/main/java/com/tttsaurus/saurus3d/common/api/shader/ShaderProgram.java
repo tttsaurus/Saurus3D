@@ -1,14 +1,17 @@
 package com.tttsaurus.saurus3d.common.api.shader;
 
 import com.tttsaurus.saurus3d.common.api.CommonBuffers;
+import com.tttsaurus.saurus3d.common.api.reflection.TypeUtils;
 import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformField;
+import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformType;
+import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformTypeKind;
+import com.tttsaurus.saurus3d.common.api.shader.uniform.Variant;
 import org.apache.commons.lang3.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL33;
+import org.lwjgl.opengl.*;
 import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,7 +27,7 @@ public class ShaderProgram implements Comparable<ShaderProgram>
 
     public int getProgramID() { return programID; }
 
-    // call after setup
+    // call after setup()
     public String getSetupDebugReport()
     {
         StringBuilder builder = new StringBuilder();
@@ -144,6 +147,138 @@ public class ShaderProgram implements Comparable<ShaderProgram>
             if (entry.getKey().getFieldName().equals(fieldName))
                 return entry.getValue();
         return GL20.glGetUniformLocation(programID, fieldName);
+    }
+
+    private float getFloat(Class<?> clazz, Object value)
+    {
+        float v = 0;
+        if (TypeUtils.isFloatOrWrappedFloat(clazz))
+            v = (float)value;
+        else if (TypeUtils.isIntOrWrappedInt(clazz))
+            v = (float)((int)value);
+        return v;
+    }
+    private int getInt(Class<?> clazz, Object value)
+    {
+        int v = 0;
+        if (TypeUtils.isIntOrWrappedInt(clazz))
+            v = (int)value;
+        return v;
+    }
+    private int getUint(Class<?> clazz, Object value)
+    {
+        int v = 0;
+        if (TypeUtils.isIntOrWrappedInt(clazz))
+            v = (int)value;
+        else if (TypeUtils.isLongOrWrappedLong(clazz))
+            v = (int)(((long)value) & 0xFFFFFFFFL);
+        return v;
+    }
+    private int getBool(Class<?> clazz, Object value)
+    {
+        int v = 0;
+        if (TypeUtils.isBooleanOrWrappedBoolean(clazz))
+            v = ((boolean)value) ? 1 : 0;
+        else if (TypeUtils.isIntOrWrappedInt(clazz))
+            v = ((int)value) > 0 ? 1 : 0;
+        return v;
+    }
+
+    // call after use()
+    public void setUniform(String fieldName, Object... values)
+    {
+        UniformField field = null;
+        int loc = 0;
+        for (Map.Entry<UniformField, Integer> entry: uniformFields.entrySet())
+            if (entry.getKey().getFieldName().equals(fieldName))
+            {
+                field = entry.getKey();
+                loc = entry.getValue();
+            }
+        if (field == null) return;
+
+        UniformType type = field.getType();
+
+        if (type.getKind() == UniformTypeKind.SCALAR)
+        {
+            Object value = values[0];
+            Class<?> clazz = value.getClass();
+
+            if (type.getSymbol().equals(UniformType.SYMBOL_FLOAT))
+                GL20.glUniform1f(loc, getFloat(clazz, value));
+            else if (type.getSymbol().equals(UniformType.SYMBOL_INT))
+                GL20.glUniform1i(loc, getInt(clazz, value));
+            else if (type.getSymbol().equals(UniformType.SYMBOL_UINT))
+                GL30.glUniform1ui(loc, getUint(clazz, value));
+            else if (type.getSymbol().equals(UniformType.SYMBOL_BOOL))
+                GL20.glUniform1i(loc, getBool(clazz, value));
+        }
+        else if (type.getKind() == UniformTypeKind.VECTOR)
+        {
+            if (type.getSymbol().equals(UniformType.SYMBOL_VEC2))
+            {
+                Object value0 = values[0];
+                Class<?> clazz0 = value0.getClass();
+                Object value1 = values[1];
+                Class<?> clazz1 = value1.getClass();
+
+                if (type.getVariant() == Variant.DEFAULT)
+                    GL20.glUniform2f(loc, getFloat(clazz0, value0), getFloat(clazz1, value1));
+                else if (type.getVariant() == Variant.I)
+                    GL20.glUniform2i(loc, getInt(clazz0, value0), getInt(clazz1, value1));
+                else if (type.getVariant() == Variant.U)
+                    GL30.glUniform2ui(loc, getUint(clazz0, value0), getUint(clazz1, value1));
+            }
+            else if (type.getSymbol().equals(UniformType.SYMBOL_VEC3))
+            {
+                Object value0 = values[0];
+                Class<?> clazz0 = value0.getClass();
+                Object value1 = values[1];
+                Class<?> clazz1 = value1.getClass();
+                Object value2 = values[2];
+                Class<?> clazz2 = value2.getClass();
+
+                if (type.getVariant() == Variant.DEFAULT)
+                    GL20.glUniform3f(loc, getFloat(clazz0, value0), getFloat(clazz1, value1), getFloat(clazz2, value2));
+                else if (type.getVariant() == Variant.I)
+                    GL20.glUniform3i(loc, getInt(clazz0, value0), getInt(clazz1, value1), getInt(clazz2, value2));
+                else if (type.getVariant() == Variant.U)
+                    GL30.glUniform3ui(loc, getUint(clazz0, value0), getUint(clazz1, value1), getUint(clazz2, value2));
+            }
+            else if (type.getSymbol().equals(UniformType.SYMBOL_VEC4))
+            {
+                Object value0 = values[0];
+                Class<?> clazz0 = value0.getClass();
+                Object value1 = values[1];
+                Class<?> clazz1 = value1.getClass();
+                Object value2 = values[2];
+                Class<?> clazz2 = value2.getClass();
+                Object value3 = values[3];
+                Class<?> clazz3 = value3.getClass();
+
+                if (type.getVariant() == Variant.DEFAULT)
+                    GL20.glUniform4f(loc, getFloat(clazz0, value0), getFloat(clazz1, value1), getFloat(clazz2, value2), getFloat(clazz3, value3));
+                else if (type.getVariant() == Variant.I)
+                    GL20.glUniform4i(loc, getInt(clazz0, value0), getInt(clazz1, value1), getInt(clazz2, value2), getInt(clazz3, value3));
+                else if (type.getVariant() == Variant.U)
+                    GL30.glUniform4ui(loc, getUint(clazz0, value0), getUint(clazz1, value1), getUint(clazz2, value2), getUint(clazz3, value3));
+            }
+        }
+        else if (type.getKind() == UniformTypeKind.MATRIX)
+        {
+            Object value = values[0];
+
+            if (value instanceof FloatBuffer buffer)
+            {
+                if (type.getSymbol().equals(UniformType.SYMBOL_MAT2))
+                    GL20.glUniformMatrix2(loc, false, buffer);
+                else if (type.getSymbol().equals(UniformType.SYMBOL_MAT3))
+                    GL20.glUniformMatrix3(loc, false, buffer);
+                else if (type.getSymbol().equals(UniformType.SYMBOL_MAT4))
+                    GL20.glUniformMatrix4(loc, false, buffer);
+            }
+        }
+
     }
 
     public void use()

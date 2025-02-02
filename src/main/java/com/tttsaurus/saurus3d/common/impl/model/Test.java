@@ -213,16 +213,15 @@ public final class Test
             }
 
             Matrix4f transform = new Matrix4f();
-            transform.setIdentity(); // Start with identity
-            transform.translate(new Vector3f(0.5f, -0.5f, -1.0f)); // Translate
-            transform.scale(new Vector3f(0.5f, 0.5f, 0.5f)); // Scale
-
+            transform.setIdentity();
+            transform.translate(new Vector3f(0.5f, -0.5f, -1.0f));
+            transform.scale(new Vector3f(0.2f, 0.2f, 0.2f));
             FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
             transform.store(matrixBuffer);
             matrixBuffer.flip();
 
             shaderProgram.use();
-            GL20.glUniformMatrix4(shaderProgram.getUniformLocation("u_transform"), false, matrixBuffer);
+            shaderProgram.setUniform("u_transform", matrixBuffer);
 
             mesh.render();
 

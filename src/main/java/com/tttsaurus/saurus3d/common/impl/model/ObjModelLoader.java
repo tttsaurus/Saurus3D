@@ -1,6 +1,5 @@
 package com.tttsaurus.saurus3d.common.impl.model;
 
-import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.api.model.IModelLoader;
 import com.tttsaurus.saurus3d.common.api.model.Mesh;
 import com.tttsaurus.saurus3d.common.api.reader.RlReaderUtils;
