@@ -222,12 +222,17 @@ public final class Test
 
             shaderProgram.use();
             shaderProgram.setUniform("u_transform", matrixBuffer);
+            shaderProgram.setUniform("u_color", 1.0f, 0.5f, 0.5f, 0.5f);
+
+            GlStateManager.enableBlend();
+            GlStateManager.disableAlpha();
+            GlStateManager.disableDepth();
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
             mesh.render();
 
+            shaderProgram.unuse();
             shaderProgram.dispose();
-
-            GL20.glUseProgram(0);
 
             GL11.glPopMatrix();
         }
