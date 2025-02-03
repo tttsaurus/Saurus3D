@@ -10,7 +10,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.*;
 import javax.annotation.Nullable;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

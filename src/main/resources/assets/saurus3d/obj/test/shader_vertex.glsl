@@ -1,13 +1,20 @@
-#version 120
+#version 330 core
+
+layout (location = 0) in vec3 pos;
+layout (location = 1) in vec2 texCoord;
+layout (location = 2) in vec3 normal;
+layout (location = 3) in vec3 offset;
 
 uniform mat4 u_transform;
-uniform int testArray[2];
-uniform ivec2 testArray2[3];
 
-attribute vec3 a_position;
+out vec2 TexCoord;
+out vec3 FragNormal;
 
-void main() {
-    gl_Position = u_transform * vec4(a_position, 1.0);
-    int temp = testArray[0];
-    ivec2 temp2 = testArray2[0];
+void main()
+{
+    vec3 worldPos = pos + offset;
+    gl_Position = u_transform * vec4(worldPos, 1.0);
+
+    TexCoord = texCoord;
+    FragNormal = normal;
 }

@@ -1,9 +1,6 @@
 package com.tttsaurus.saurus3d.common.api.model;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -36,6 +33,10 @@ public class Mesh
 
     public void setup()
     {
+        int prevVao = GL11.glGetInteger(GL30.GL_VERTEX_ARRAY_BINDING);
+        int prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        int prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+
         vao = GL30.glGenVertexArrays();
         GL30.glBindVertexArray(vao);
 
@@ -64,12 +65,12 @@ public class Mesh
         GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, 8 * Float.BYTES, 5 * Float.BYTES);  // Last 3 floats for normal
         GL20.glEnableVertexAttribArray(2);
 
-        GL30.glBindVertexArray(0);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+        GL30.glBindVertexArray(prevVao);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
 
-        vertices = null;
-        indices = null;
+        //vertices = null;
+        //indices = null;
     }
 
     public void render()
