@@ -3,6 +3,7 @@ package com.tttsaurus.saurus3d.common.api.shader;
 import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformField;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL40;
 import java.util.List;
 
 public class Shader
@@ -10,7 +11,9 @@ public class Shader
     public enum ShaderType
     {
         VERTEX(GL20.GL_VERTEX_SHADER),
-        FRAGMENT(GL20.GL_FRAGMENT_SHADER);
+        FRAGMENT(GL20.GL_FRAGMENT_SHADER),
+        TESS_CONTROL(GL40.GL_TESS_CONTROL_SHADER),
+        TESS_EVALUATION(GL40.GL_TESS_EVALUATION_SHADER);
 
         public final int glValue;
         ShaderType(int glValue)

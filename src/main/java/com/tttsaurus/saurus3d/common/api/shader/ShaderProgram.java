@@ -140,6 +140,14 @@ public class ShaderProgram implements Comparable<ShaderProgram>
         gpuTimeMs = CommonBuffers.intBuffer.get(0) / 1.0E6d;
     }
 
+    public int getUniformLocation(UniformField field)
+    {
+        Integer loc = uniformFields.get(field);
+        if (loc == null)
+            return -1;
+        else
+            return loc;
+    }
     public int getUniformLocation(String fieldName)
     {
         for (Map.Entry<UniformField, Integer> entry: uniformFields.entrySet())
@@ -147,8 +155,16 @@ public class ShaderProgram implements Comparable<ShaderProgram>
                 return entry.getValue();
         return GL20.glGetUniformLocation(programID, fieldName);
     }
+    @Nullable
+    public UniformField getUniform(String fieldName)
+    {
+        for (Map.Entry<UniformField, Integer> entry: uniformFields.entrySet())
+            if (entry.getKey().getFieldName().equals(fieldName))
+                return entry.getKey();
+        return null;
+    }
 
-    private float getFloat(Class<?> clazz, Object value)
+    private static float getFloat(Class<?> clazz, Object value)
     {
         float v = 0;
         if (TypeUtils.isFloatOrWrappedFloat(clazz))
@@ -157,14 +173,25 @@ public class ShaderProgram implements Comparable<ShaderProgram>
             v = (float)((int)value);
         return v;
     }
-    private int getInt(Class<?> clazz, Object value)
+    private static double getDouble(Class<?> clazz, Object value)
+    {
+        double v = 0;
+        if (TypeUtils.isDoubleOrWrappedDouble(clazz))
+            v = (double)value;
+        else if (TypeUtils.isIntOrWrappedInt(clazz))
+            v = (double)((int)value);
+        else if (TypeUtils.isFloatOrWrappedFloat(clazz))
+            v = (double)((float)value);
+        return v;
+    }
+    private static int getInt(Class<?> clazz, Object value)
     {
         int v = 0;
         if (TypeUtils.isIntOrWrappedInt(clazz))
             v = (int)value;
         return v;
     }
-    private int getUint(Class<?> clazz, Object value)
+    private static int getUint(Class<?> clazz, Object value)
     {
         int v = 0;
         if (TypeUtils.isIntOrWrappedInt(clazz))
@@ -173,7 +200,7 @@ public class ShaderProgram implements Comparable<ShaderProgram>
             v = (int)(((long)value) & 0xFFFFFFFFL);
         return v;
     }
-    private int getBool(Class<?> clazz, Object value)
+    private static int getBool(Class<?> clazz, Object value)
     {
         int v = 0;
         if (TypeUtils.isBooleanOrWrappedBoolean(clazz))
@@ -205,6 +232,8 @@ public class ShaderProgram implements Comparable<ShaderProgram>
 
             if (type.getSymbol().equals(UniformType.SYMBOL_FLOAT))
                 GL20.glUniform1f(loc, getFloat(clazz, value));
+            else if (type.getSymbol().equals(UniformType.SYMBOL_DOUBLE))
+                GL40.glUniform1d(loc, getDouble(clazz, value));
             else if (type.getSymbol().equals(UniformType.SYMBOL_INT))
                 GL20.glUniform1i(loc, getInt(clazz, value));
             else if (type.getSymbol().equals(UniformType.SYMBOL_UINT))
@@ -277,7 +306,13 @@ public class ShaderProgram implements Comparable<ShaderProgram>
                     GL20.glUniformMatrix4(loc, false, buffer);
             }
         }
+        else if (type.getKind() == UniformTypeKind.SAMPLER)
+        {
+            Object value = values[0];
+            Class<?> clazz = value.getClass();
 
+            GL20.glUniform1i(loc, getInt(clazz, value));
+        }
     }
 
     public void use()
