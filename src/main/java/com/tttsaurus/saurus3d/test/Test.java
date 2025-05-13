@@ -1,9 +1,10 @@
-package com.tttsaurus.saurus3d.common.impl.model;
+package com.tttsaurus.saurus3d.test;
 
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.model.Mesh;
 import com.tttsaurus.saurus3d.common.core.shader.Shader;
 import com.tttsaurus.saurus3d.common.core.shader.ShaderProgram;
+import com.tttsaurus.saurus3d.common.impl.model.ObjModelLoader;
 import com.tttsaurus.saurus3d.common.impl.shader.ShaderLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;

@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.proxy;
 
 import com.tttsaurus.saurus3d.Saurus3D;
-import com.tttsaurus.saurus3d.common.impl.model.Test;
+import com.tttsaurus.saurus3d.test.Test;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
