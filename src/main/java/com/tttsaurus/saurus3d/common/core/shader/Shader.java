@@ -1,12 +1,12 @@
 package com.tttsaurus.saurus3d.common.core.shader;
 
 import com.tttsaurus.saurus3d.common.core.gl.GlResourceManager;
-import com.tttsaurus.saurus3d.common.core.gl.IGlDisposable;
+import com.tttsaurus.saurus3d.common.core.gl.GlDisposable;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
 import org.lwjgl.opengl.*;
 import java.util.List;
 
-public class Shader implements IGlDisposable
+public class Shader extends GlDisposable
 {
     public enum ShaderType
     {
@@ -76,6 +76,13 @@ public class Shader implements IGlDisposable
             GlResourceManager.addDisposable(this);
     }
 
+    @Override
+    public int priority()
+    {
+        return 900;
+    }
+
+    @Override
     public void dispose()
     {
         if (shaderID != 0)

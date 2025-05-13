@@ -1,20 +1,19 @@
 package com.tttsaurus.saurus3d.common.core.shader;
 
+import com.tttsaurus.saurus3d.common.core.gl.GlDisposable;
 import com.tttsaurus.saurus3d.common.core.gl.GlResourceManager;
-import com.tttsaurus.saurus3d.common.core.gl.IGlDisposable;
 import com.tttsaurus.saurus3d.common.core.reflection.TypeUtils;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformType;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformTypeKind;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.Variant;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.*;
 import javax.annotation.Nullable;
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable
+public class ShaderProgram extends GlDisposable
 {
     private boolean setup;
     private int prevProgramID;
@@ -63,7 +62,7 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable
         for (Map.Entry<UniformField, Integer> entry: uniformFields.entrySet())
             builder.append(String.format("    - [%s] %s, GL Loc: %d", entry.getKey().getType(), entry.getKey().getFieldName(), entry.getValue())).append("\n");
 
-        builder.append("\n\n===End of the Setup Report===");
+        builder.append("\n===End of the Setup Report===");
 
         return builder.toString();
     }
@@ -315,16 +314,17 @@ public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable
         GL20.glUseProgram(prevProgramID);
     }
 
+    @Override
+    public int priority()
+    {
+        return 1000;
+    }
+
+    @Override
     public void dispose()
     {
         for (int shaderID: shaderIDs)
             GL20.glDetachShader(programID, shaderID);
         GL20.glDeleteProgram(programID);
-    }
-
-    @Override
-    public int compareTo(@NotNull ShaderProgram o)
-    {
-        return Integer.compare(programID, o.programID);
     }
 }

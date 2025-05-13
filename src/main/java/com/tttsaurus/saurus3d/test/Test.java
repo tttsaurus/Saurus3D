@@ -213,7 +213,6 @@ public final class Test
             mesh.render();
 
             shaderProgram.unuse();
-            shaderProgram.dispose();
 
             GL11.glPopMatrix();
         }

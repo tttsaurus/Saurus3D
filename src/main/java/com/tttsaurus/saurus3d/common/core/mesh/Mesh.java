@@ -1,14 +1,14 @@
 package com.tttsaurus.saurus3d.common.core.mesh;
 
 import com.tttsaurus.saurus3d.common.core.gl.GlResourceManager;
-import com.tttsaurus.saurus3d.common.core.gl.IGlDisposable;
+import com.tttsaurus.saurus3d.common.core.gl.GlDisposable;
 import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class Mesh implements IGlDisposable
+public class Mesh extends GlDisposable
 {
     private float[] vertices;
     private int[] indices;
@@ -332,6 +332,7 @@ public class Mesh implements IGlDisposable
         GL30.glBindVertexArray(prevVao);
     }
 
+    @Override
     public void dispose()
     {
         GL30.glDeleteVertexArrays(vao);

@@ -2,37 +2,37 @@ package com.tttsaurus.saurus3d.common.core.gl;
 
 import com.tttsaurus.saurus3d.Saurus3D;
 import org.lwjgl.opengl.GL11;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.PriorityQueue;
 
 public final class GlResourceManager
 {
-    private static final List<IGlDisposable> disposables = new CopyOnWriteArrayList<>();
+    private static final PriorityQueue<GlDisposable> disposables = new PriorityQueue<>();
 
-    public static void addDisposable(IGlDisposable disposable)
+    public static void addDisposable(GlDisposable disposable)
     {
         disposables.add(disposable);
     }
-    public static void removeDisposable(IGlDisposable disposable)
+    public static void removeDisposable(GlDisposable disposable)
     {
         disposables.remove(disposable);
     }
 
     public static void disposeAll()
     {
-        for (IGlDisposable disposable: disposables)
+        while (!disposables.isEmpty())
         {
+            GlDisposable disposable = disposables.poll();
             Saurus3D.LOGGER.info("Disposing " + disposable.getClass().getSimpleName());
             disposable.dispose();
-            checkGLError();
+            checkGlError();
         }
     }
 
-    private static void checkGLError()
+    private static void checkGlError()
     {
         int error;
         while ((error = GL11.glGetError()) != GL11.GL_NO_ERROR)
-            Saurus3D.LOGGER.info("[OpenGL Error] " + getErrorString(error));
+            Saurus3D.LOGGER.warn("OpenGL Error: " + getErrorString(error));
     }
 
     private static String getErrorString(int error)
