@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.api.reflection;
+package com.tttsaurus.saurus3d.common.core.reflection;
 
 public final class TypeUtils
 {

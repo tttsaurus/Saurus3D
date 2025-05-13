@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.proxy;
 
 import com.tttsaurus.saurus3d.Saurus3D;
-import com.tttsaurus.saurus3d.common.impl.model.Test2;
+import com.tttsaurus.saurus3d.common.impl.model.Test;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -17,7 +17,6 @@ public class CommonProxy
     {
         Saurus3D.LOGGER.info("Saurus3D starts initializing.");
 
-        //MinecraftForge.EVENT_BUS.register(Test.class);
-        MinecraftForge.EVENT_BUS.register(Test2.class);
+        MinecraftForge.EVENT_BUS.register(Test.class);
     }
 }

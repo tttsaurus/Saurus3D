@@ -1,8 +1,8 @@
 package com.tttsaurus.saurus3d.common.impl.model;
 
-import com.tttsaurus.saurus3d.common.api.model.IModelLoader;
-import com.tttsaurus.saurus3d.common.api.model.Mesh;
-import com.tttsaurus.saurus3d.common.api.reader.RlReaderUtils;
+import com.tttsaurus.saurus3d.common.core.model.IModelLoader;
+import com.tttsaurus.saurus3d.common.core.model.Mesh;
+import com.tttsaurus.saurus3d.common.core.reader.RlReaderUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -114,14 +114,6 @@ public class ObjModelLoader implements IModelLoader
             indices[index++] = face[3];
             indices[index++] = face[6];
         }
-
-//        Saurus3D.LOGGER.info("vertices: ");
-//        for (float v: vertexData)
-//            Saurus3D.LOGGER.info(v);
-//
-//        Saurus3D.LOGGER.info("indices: ");
-//        for (float i: indices)
-//            Saurus3D.LOGGER.info(i);
 
         return new Mesh(vertexData, indices);
     }

@@ -1,6 +1,6 @@
-package com.tttsaurus.saurus3d.common.api.shader;
+package com.tttsaurus.saurus3d.common.core.shader;
 
-import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformField;
+import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

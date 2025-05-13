@@ -1,11 +1,11 @@
-package com.tttsaurus.saurus3d.common.api.shader;
+package com.tttsaurus.saurus3d.common.core.shader;
 
-import com.tttsaurus.saurus3d.common.api.CommonBuffers;
-import com.tttsaurus.saurus3d.common.api.reflection.TypeUtils;
-import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformField;
-import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformType;
-import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformTypeKind;
-import com.tttsaurus.saurus3d.common.api.shader.uniform.Variant;
+import com.tttsaurus.saurus3d.common.core.CommonBuffers;
+import com.tttsaurus.saurus3d.common.core.reflection.TypeUtils;
+import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
+import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformType;
+import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformTypeKind;
+import com.tttsaurus.saurus3d.common.core.shader.uniform.Variant;
 import org.apache.commons.lang3.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.*;
@@ -171,6 +171,8 @@ public class ShaderProgram implements Comparable<ShaderProgram>
             v = (float)value;
         else if (TypeUtils.isIntOrWrappedInt(clazz))
             v = (float)((int)value);
+        else if (TypeUtils.isDoubleOrWrappedDouble(clazz))
+            v = (float)value;
         return v;
     }
     private static double getDouble(Class<?> clazz, Object value)

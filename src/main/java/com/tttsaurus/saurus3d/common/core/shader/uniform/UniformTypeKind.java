@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.api.shader.uniform;
+package com.tttsaurus.saurus3d.common.core.shader.uniform;
 
 // especially for glsl 330
 public enum UniformTypeKind

@@ -1,8 +1,8 @@
 package com.tttsaurus.saurus3d.common.impl.shader;
 
-import com.tttsaurus.saurus3d.common.api.shader.IShaderLoader;
-import com.tttsaurus.saurus3d.common.api.shader.Shader;
-import com.tttsaurus.saurus3d.common.api.reader.RlReaderUtils;
+import com.tttsaurus.saurus3d.common.core.shader.IShaderLoader;
+import com.tttsaurus.saurus3d.common.core.shader.Shader;
+import com.tttsaurus.saurus3d.common.core.reader.RlReaderUtils;
 
 public class ShaderLoader implements IShaderLoader
 {

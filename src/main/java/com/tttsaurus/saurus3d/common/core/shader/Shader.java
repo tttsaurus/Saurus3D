@@ -1,6 +1,6 @@
-package com.tttsaurus.saurus3d.common.api.shader;
+package com.tttsaurus.saurus3d.common.core.shader;
 
-import com.tttsaurus.saurus3d.common.api.shader.uniform.UniformField;
+import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL40;

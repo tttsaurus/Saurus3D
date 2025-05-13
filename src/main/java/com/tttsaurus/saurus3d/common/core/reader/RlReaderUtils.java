@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.api.reader;
+package com.tttsaurus.saurus3d.common.core.reader;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResource;

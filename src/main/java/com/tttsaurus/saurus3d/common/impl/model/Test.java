@@ -1,27 +1,23 @@
 package com.tttsaurus.saurus3d.common.impl.model;
 
 import com.tttsaurus.saurus3d.Saurus3D;
-import com.tttsaurus.saurus3d.common.api.model.Mesh;
-import com.tttsaurus.saurus3d.common.api.shader.Shader;
-import com.tttsaurus.saurus3d.common.api.shader.ShaderProgram;
+import com.tttsaurus.saurus3d.common.core.model.Mesh;
+import com.tttsaurus.saurus3d.common.core.shader.Shader;
+import com.tttsaurus.saurus3d.common.core.shader.ShaderProgram;
 import com.tttsaurus.saurus3d.common.impl.shader.ShaderLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -94,6 +90,10 @@ public final class Test
         GlStateManager.bindTexture(textureID);
     }
 
+    static MethodHandles.Lookup lookup = MethodHandles.lookup();
+    static MethodHandle handle1 = null;
+    static MethodHandle handle2 = null;
+
     static Mesh mesh = null;
     @SubscribeEvent
     public static void onRenderWorldLast(RenderWorldLastEvent event)
@@ -138,28 +138,77 @@ public final class Test
             ShaderProgram shaderProgram = new ShaderProgram(vertex, frag);
             shaderProgram.setup();
 
-            if (flag2)
-            {
-                flag2 = false;
-                Saurus3D.LOGGER.info(shaderProgram.getSetupDebugReport());
-            }
-
             Matrix4f transform = new Matrix4f();
             transform.setIdentity();
-            transform.translate(new Vector3f(0.5f, -0.5f, -1.0f));
-            transform.scale(new Vector3f(0.2f, 0.2f, 0.2f));
+            //transform.translate(new Vector3f(0.5f, -0.5f, -1.0f));
+            //transform.scale(new Vector3f(0.2f, 0.2f, 0.2f));
             FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
             transform.store(matrixBuffer);
             matrixBuffer.flip();
 
             shaderProgram.use();
             shaderProgram.setUniform("u_transform", matrixBuffer);
-            shaderProgram.setUniform("u_color", 1.0f, 0.5f, 0.5f, 0.5f);
+            shaderProgram.setUniform("u_color", 1.0f, 0.5f, 0.5f, 1.0f);
 
+//            FloatBuffer projection = BufferUtils.createFloatBuffer(16);
+//            FloatBuffer modelView = BufferUtils.createFloatBuffer(16);
+//
+//            GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, projection);
+//            GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, modelView);
+
+            FloatBuffer modelView;
+            FloatBuffer projection;
+
+            if (handle1 == null)
+            {
+                try
+                {
+                    Field field = ActiveRenderInfo.class.getDeclaredField("field_178812_b");
+                    field.setAccessible(true);
+                    handle1 = lookup.unreflectGetter(field);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (handle2 == null)
+            {
+                try
+                {
+                    Field field = ActiveRenderInfo.class.getDeclaredField("field_178813_c");
+                    field.setAccessible(true);
+                    handle2 = lookup.unreflectGetter(field);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            try { modelView = (FloatBuffer)handle1.invoke(); }
+            catch (Throwable e) { throw new RuntimeException(e); }
+
+            try { projection = (FloatBuffer)handle2.invoke(); }
+            catch (Throwable e) { throw new RuntimeException(e); }
+
+            shaderProgram.setUniform("projection", projection);
+            shaderProgram.setUniform("modelView", modelView);
+
+            RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
+            shaderProgram.setUniform("camPos", (float)renderManager.viewerPosX, (float)renderManager.viewerPosY, (float)renderManager.viewerPosZ);
+
+            GlStateManager.disableAlpha();
             GlStateManager.enableBlend();
             GlStateManager.disableAlpha();
-            GlStateManager.disableDepth();
+            GlStateManager.enableDepth();
             GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+
+            if (flag2)
+            {
+                flag2 = false;
+                Saurus3D.LOGGER.info(shaderProgram.getSetupDebugReport());
+            }
 
             mesh.render();
 
