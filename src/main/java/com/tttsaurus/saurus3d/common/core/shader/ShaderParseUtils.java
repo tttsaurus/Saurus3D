@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public final class ShaderParseUtils
 {
-    public static List<UniformField> getUniformFields(String shaderSource)
+    protected static List<UniformField> getUniformFields(String shaderSource)
     {
         List<UniformField> fields = new ArrayList<>();
 

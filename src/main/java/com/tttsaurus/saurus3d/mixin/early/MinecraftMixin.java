@@ -1,6 +1,5 @@
 package com.tttsaurus.saurus3d.mixin.early;
 
-
 import com.tttsaurus.saurus3d.Saurus3D;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;

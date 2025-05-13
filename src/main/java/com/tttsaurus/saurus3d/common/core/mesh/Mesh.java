@@ -1,12 +1,14 @@
 package com.tttsaurus.saurus3d.common.core.mesh;
 
+import com.tttsaurus.saurus3d.common.core.gl.GlResourceManager;
+import com.tttsaurus.saurus3d.common.core.gl.IGlDisposable;
 import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class Mesh
+public class Mesh implements IGlDisposable
 {
     private float[] vertices;
     private int[] indices;
@@ -187,6 +189,7 @@ public class Mesh
         indices = null;
 
         setup = true;
+        GlResourceManager.addDisposable(this);
     }
 
     public void updateVerticesByMappedBuffer(float[] newVertices)

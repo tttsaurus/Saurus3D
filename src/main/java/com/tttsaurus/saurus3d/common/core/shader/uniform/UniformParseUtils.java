@@ -10,7 +10,7 @@ public final class UniformParseUtils
     }
 
     // doesn't allow multi array
-    public static Tuple<UniformType, String> getUniformType(String rawType, String fieldName)
+    protected static Tuple<UniformType, String> getUniformType(String rawType, String fieldName)
     {
         UniformType type = UniformType.UNKNOWN.deepClone();
         type.setSymbol(rawType);

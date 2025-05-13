@@ -1,10 +1,12 @@
 package com.tttsaurus.saurus3d.common.core.shader;
 
+import com.tttsaurus.saurus3d.common.core.gl.GlResourceManager;
+import com.tttsaurus.saurus3d.common.core.gl.IGlDisposable;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
 import org.lwjgl.opengl.*;
 import java.util.List;
 
-public class Shader
+public class Shader implements IGlDisposable
 {
     public enum ShaderType
     {
@@ -24,6 +26,7 @@ public class Shader
 
     private String shaderSource;
 
+    private boolean setup;
     private int shaderID;
     private final ShaderType shaderType;
     private boolean valid = true;
@@ -31,6 +34,7 @@ public class Shader
     private final List<UniformField> uniformFields;
     private final String fileName;
 
+    public boolean getSetup() { return setup; }
     public int getShaderID() { return shaderID; }
     public ShaderType getShaderType() { return shaderType; }
     public String getFileName() { return fileName; }
@@ -38,7 +42,7 @@ public class Shader
     protected String getErrorLog() { return errorLog; }
     protected List<UniformField> getUniformFields() { return uniformFields; }
 
-    public Shader(String fileName, String shaderSource, ShaderType shaderType)
+    protected Shader(String fileName, String shaderSource, ShaderType shaderType)
     {
         this.fileName = fileName;
         this.shaderSource = shaderSource;
@@ -49,6 +53,8 @@ public class Shader
 
     protected void compile()
     {
+        if (setup) return;
+
         shaderID = GL20.glCreateShader(shaderType.glValue);
 
         GL20.glShaderSource(shaderID, shaderSource);
@@ -64,5 +70,15 @@ public class Shader
             shaderID = 0;
             valid = false;
         }
+
+        setup = true;
+        if (shaderID != 0)
+            GlResourceManager.addDisposable(this);
+    }
+
+    public void dispose()
+    {
+        if (shaderID != 0)
+            GL20.glDeleteShader(shaderID);
     }
 }

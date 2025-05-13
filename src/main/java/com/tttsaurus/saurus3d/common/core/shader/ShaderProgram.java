@@ -1,12 +1,12 @@
 package com.tttsaurus.saurus3d.common.core.shader;
 
-import com.tttsaurus.saurus3d.common.core.CommonBuffers;
+import com.tttsaurus.saurus3d.common.core.gl.GlResourceManager;
+import com.tttsaurus.saurus3d.common.core.gl.IGlDisposable;
 import com.tttsaurus.saurus3d.common.core.reflection.TypeUtils;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformType;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformTypeKind;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.Variant;
-import org.apache.commons.lang3.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.*;
 import javax.annotation.Nullable;
@@ -14,16 +14,16 @@ import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ShaderProgram implements Comparable<ShaderProgram>
+public class ShaderProgram implements Comparable<ShaderProgram>, IGlDisposable
 {
-    private double cpuTimeMs;
-    private double gpuTimeMs;
+    private boolean setup;
     private int prevProgramID;
     private int programID;
     private final Map<UniformField, Integer> uniformFields = new ConcurrentHashMap<>();
     private final List<Integer> shaderIDs = new ArrayList<>();
     private final List<Shader> shaders = new ArrayList<>();
 
+    public boolean getSetup() { return setup; }
     public int getProgramID() { return programID; }
 
     // call after setup()
@@ -63,10 +63,7 @@ public class ShaderProgram implements Comparable<ShaderProgram>
         for (Map.Entry<UniformField, Integer> entry: uniformFields.entrySet())
             builder.append(String.format("    - [%s] %s, GL Loc: %d", entry.getKey().getType(), entry.getKey().getFieldName(), entry.getValue())).append("\n");
 
-        builder.append("\nCPU Time Taken: ").append(cpuTimeMs).append(" ms").append("\n");
-        builder.append("GPU Time Taken: ").append(gpuTimeMs).append(" ms").append("\n");
-
-        builder.append("\n===End of the Setup Report===");
+        builder.append("\n\n===End of the Setup Report===");
 
         return builder.toString();
     }
@@ -87,16 +84,11 @@ public class ShaderProgram implements Comparable<ShaderProgram>
 
     public void setup()
     {
-        int gpuTimeQueryID = GL15.glGenQueries();
-        GL15.glBeginQuery(GL33.GL_TIME_ELAPSED, gpuTimeQueryID);
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        if (setup) return;
 
         for (Shader shader: shaders)
         {
-            shader.compile();
-            if (shader.getValidity())
+            if (shader.getSetup() && shader.getValidity())
                 shaderIDs.add(shader.getShaderID());
         }
         for (int shaderID: shaderIDs)
@@ -132,12 +124,8 @@ public class ShaderProgram implements Comparable<ShaderProgram>
                 iterator.remove();
         }
 
-        stopWatch.stop();
-        cpuTimeMs = stopWatch.getTime();
-
-        GL15.glEndQuery(GL33.GL_TIME_ELAPSED);
-        GL15.glGetQueryObject(gpuTimeQueryID, GL15.GL_QUERY_RESULT, CommonBuffers.INT_BUFFER_16);
-        gpuTimeMs = CommonBuffers.INT_BUFFER_16.get(0) / 1.0E6d;
+        setup = true;
+        GlResourceManager.addDisposable(this);
     }
 
     public int getUniformLocation(UniformField field)
@@ -330,10 +318,7 @@ public class ShaderProgram implements Comparable<ShaderProgram>
     public void dispose()
     {
         for (int shaderID: shaderIDs)
-        {
             GL20.glDetachShader(programID, shaderID);
-            GL20.glDeleteShader(shaderID);
-        }
         GL20.glDeleteProgram(programID);
     }
 

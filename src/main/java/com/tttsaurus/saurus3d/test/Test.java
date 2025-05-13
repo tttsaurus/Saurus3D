@@ -3,7 +3,7 @@ package com.tttsaurus.saurus3d.test;
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
 import com.tttsaurus.saurus3d.common.core.shader.Shader;
-import com.tttsaurus.saurus3d.common.core.shader.ShaderLoadingUtils;
+import com.tttsaurus.saurus3d.common.core.shader.ShaderManager;
 import com.tttsaurus.saurus3d.common.core.shader.ShaderProgram;
 import com.tttsaurus.saurus3d.common.impl.model.ObjModelLoader;
 import net.minecraft.client.Minecraft;
@@ -132,8 +132,8 @@ public final class Test
         {
             GL11.glPushMatrix();
 
-            Shader vertex = ShaderLoadingUtils.load("saurus3d:obj/test/shader_vertex.glsl", Shader.ShaderType.VERTEX);
-            Shader frag = ShaderLoadingUtils.load("saurus3d:obj/test/shader_frag.glsl", Shader.ShaderType.FRAGMENT);
+            Shader vertex = ShaderManager.loadShader("saurus3d:obj/test/shader_vertex.glsl", Shader.ShaderType.VERTEX);
+            Shader frag = ShaderManager.loadShader("saurus3d:obj/test/shader_frag.glsl", Shader.ShaderType.FRAGMENT);
 
             ShaderProgram shaderProgram = new ShaderProgram(vertex, frag);
             shaderProgram.setup();
