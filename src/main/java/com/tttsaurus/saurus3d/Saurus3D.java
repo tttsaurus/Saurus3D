@@ -2,6 +2,7 @@ package com.tttsaurus.saurus3d;
 
 import com.tttsaurus.saurus3d.proxy.CommonProxy;
 import net.minecraft.block.Block;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -16,10 +17,11 @@ import org.apache.logging.log4j.Logger;
         modid = Tags.MODID,
         version = Tags.VERSION,
         name = Tags.MODNAME,
-        acceptedMinecraftVersions = "[1.12.2]")
+        acceptedMinecraftVersions = "[1.12.2]",
+        dependencies = "required-after:mixinbooter@[10.0,)")
 public class Saurus3D
 {
-    public static final Logger LOGGER = LogManager.getLogger(Tags.MODID);
+    public static final Logger LOGGER = LogManager.getLogger(Tags.MODNAME);
 
     @SidedProxy(
             clientSide = "com.tttsaurus.saurus3d.proxy.ClientProxy",
@@ -29,6 +31,7 @@ public class Saurus3D
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        MinecraftForge.EVENT_BUS.register(this);
         proxy.preInit(event);
     }
 
@@ -36,7 +39,6 @@ public class Saurus3D
     public void init(FMLInitializationEvent event)
     {
         proxy.init(event);
-        Saurus3D.LOGGER.info("Saurus3D initialized.");
     }
 
     @SubscribeEvent

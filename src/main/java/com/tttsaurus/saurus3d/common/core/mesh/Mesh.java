@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.model;
+package com.tttsaurus.saurus3d.common.core.mesh;
 
 import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;

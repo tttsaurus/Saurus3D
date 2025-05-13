@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.common.impl.model;
 
 import com.tttsaurus.saurus3d.common.core.model.IModelLoader;
-import com.tttsaurus.saurus3d.common.core.model.Mesh;
+import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
 import com.tttsaurus.saurus3d.common.core.reader.RlReaderUtils;
 import java.util.ArrayList;
 import java.util.List;
