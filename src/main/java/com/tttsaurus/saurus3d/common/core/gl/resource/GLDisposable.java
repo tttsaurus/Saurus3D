@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.gl;
+package com.tttsaurus.saurus3d.common.core.gl.resource;
 
 public abstract class GLDisposable implements Comparable<GLDisposable>
 {

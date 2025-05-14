@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.common.core.mesh;
 
-import com.tttsaurus.saurus3d.common.core.gl.GLResourceManager;
-import com.tttsaurus.saurus3d.common.core.gl.GLDisposable;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLDisposable;
 import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

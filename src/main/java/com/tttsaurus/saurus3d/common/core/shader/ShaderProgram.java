@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.common.core.shader;
 
-import com.tttsaurus.saurus3d.common.core.gl.GLDisposable;
-import com.tttsaurus.saurus3d.common.core.gl.GLResourceManager;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLDisposable;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.common.core.reflection.TypeUtils;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformType;
