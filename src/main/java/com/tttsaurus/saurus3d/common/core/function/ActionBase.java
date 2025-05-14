@@ -1,6 +1,6 @@
 package com.tttsaurus.saurus3d.common.core.function;
 
-public interface IAction
+public abstract class ActionBase
 {
-    void invoke();
+
 }

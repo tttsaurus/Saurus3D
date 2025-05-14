@@ -3,7 +3,7 @@ package com.tttsaurus.saurus3d.mixin.early;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.saurus3d.Saurus3D;
-import com.tttsaurus.saurus3d.common.core.function.IAction;
+import com.tttsaurus.saurus3d.common.core.function.Action;
 import com.tttsaurus.saurus3d.common.core.gl.debug.KHRDebugManager;
 import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMessageFilter;
 import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
@@ -27,7 +27,7 @@ public class MinecraftMixin
     @Inject(method = "shutdown", at = @At("HEAD"))
     private void beforeShutdown(CallbackInfo ci)
     {
-        for (IAction action: ShutdownHooks.hooks)
+        for (Action action: ShutdownHooks.hooks)
             action.invoke();
     }
 

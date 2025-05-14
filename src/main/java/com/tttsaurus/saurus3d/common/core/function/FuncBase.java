@@ -1,6 +1,6 @@
 package com.tttsaurus.saurus3d.common.core.function;
 
-public interface IFunc<TReturn>
+public abstract class FuncBase
 {
-    TReturn invoke();
+
 }
