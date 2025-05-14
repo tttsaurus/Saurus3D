@@ -2,7 +2,7 @@ package com.tttsaurus.saurus3d.common.core.gl.resource;
 
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.gl.debug.GLDebug;
-import com.tttsaurus.saurus3d.common.core.gl.debug.khr.KHRDebugManager;
+import com.tttsaurus.saurus3d.common.core.gl.debug.KHRDebugManager;
 import java.util.PriorityQueue;
 
 public final class GLResourceManager

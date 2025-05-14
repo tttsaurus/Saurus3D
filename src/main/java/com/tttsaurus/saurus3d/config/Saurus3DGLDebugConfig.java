@@ -1,12 +1,12 @@
 package com.tttsaurus.saurus3d.config;
 
-import com.tttsaurus.saurus3d.common.core.gl.debug.khr.DebugMessageFilter;
-import com.tttsaurus.saurus3d.common.core.gl.debug.khr.DebugMsgSeverity;
-import com.tttsaurus.saurus3d.common.core.gl.debug.khr.DebugMsgSource;
-import com.tttsaurus.saurus3d.common.core.gl.debug.khr.DebugMsgType;
+import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMessageFilter;
+import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMsgSeverity;
+import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMsgSource;
+import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMsgType;
 import net.minecraftforge.common.config.Configuration;
 
-public class Saurus3DDebugConfig
+public class Saurus3DGLDebugConfig
 {
     public static boolean ENABLE_INGAME_DEBUG;
     public static boolean ENABLE_AUTO_DEBUG;

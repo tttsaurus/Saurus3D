@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.common.core.gl.debug;
 
 import com.tttsaurus.saurus3d.Saurus3D;
-import com.tttsaurus.saurus3d.config.Saurus3DDebugConfig;
+import com.tttsaurus.saurus3d.config.Saurus3DGLDebugConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.text.TextComponentString;
@@ -29,7 +29,7 @@ public final class GLDebug
 
             Saurus3D.LOGGER.warn(builder.toString());
 
-            if (Saurus3DDebugConfig.ENABLE_INGAME_DEBUG)
+            if (Saurus3DGLDebugConfig.ENABLE_INGAME_DEBUG)
             {
                 EntityPlayerSP player = Minecraft.getMinecraft().player;
                 if (player != null)

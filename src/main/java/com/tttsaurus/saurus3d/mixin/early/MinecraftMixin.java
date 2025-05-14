@@ -4,11 +4,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.function.IAction;
-import com.tttsaurus.saurus3d.common.core.gl.debug.khr.KHRDebugManager;
-import com.tttsaurus.saurus3d.common.core.gl.debug.khr.DebugMessageFilter;
+import com.tttsaurus.saurus3d.common.core.gl.debug.KHRDebugManager;
+import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMessageFilter;
 import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
 import com.tttsaurus.saurus3d.config.ConfigFileHelper;
-import com.tttsaurus.saurus3d.config.Saurus3DDebugConfig;
+import com.tttsaurus.saurus3d.config.Saurus3DGLDebugConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.LWJGLException;
@@ -34,14 +34,14 @@ public class MinecraftMixin
     @Inject(method = "init", at = @At("HEAD"))
     private void beforeInit(CallbackInfo info)
     {
-        Saurus3DDebugConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("debug"));
-        Saurus3DDebugConfig.loadConfig();
+        Saurus3DGLDebugConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("gl_debug"));
+        Saurus3DGLDebugConfig.loadConfig();
     }
 
     @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false))
     private void createDisplayInTry(PixelFormat pixelFormat, Operation<Void> original) throws LWJGLException
     {
-        if (Saurus3DDebugConfig.ENABLE_AUTO_DEBUG)
+        if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
             Display.create(pixelFormat, new ContextAttribs(1, 0, 0, ContextAttribs.CONTEXT_DEBUG_BIT_ARB));
         else
             original.call(pixelFormat);
@@ -50,7 +50,7 @@ public class MinecraftMixin
     @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create()V", remap = false))
     private void createDisplayInCatch(Operation<Void> original) throws LWJGLException
     {
-        if (Saurus3DDebugConfig.ENABLE_AUTO_DEBUG)
+        if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
             Display.create(new PixelFormat(), new ContextAttribs(1, 0, 0, ContextAttribs.CONTEXT_DEBUG_BIT_ARB));
         else
             original.call();
@@ -59,21 +59,21 @@ public class MinecraftMixin
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;createDisplay()V", shift = At.Shift.AFTER))
     private void afterCreateDisplay(CallbackInfo info)
     {
-        if (!KHRDebugManager.isSupported()) Saurus3DDebugConfig.ENABLE_AUTO_DEBUG = false;
-        if (Saurus3DDebugConfig.ENABLE_AUTO_DEBUG)
+        if (!KHRDebugManager.isSupported()) Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG = false;
+        if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
         {
             try
             {
                 Method method = KHRDebugManager.class.getDeclaredMethod("enable", DebugMessageFilter.class);
                 method.setAccessible(true);
-                method.invoke(null, new Object[]{Saurus3DDebugConfig.AUTO_DEBUG_MSG_FILTER});
+                method.invoke(null, new Object[]{Saurus3DGLDebugConfig.AUTO_DEBUG_MSG_FILTER});
             }
             catch (Exception ignored) { }
         }
 
         if (KHRDebugManager.isEnable())
-            Saurus3D.LOGGER.info("KHR Auto Debug is enabled.");
+            Saurus3D.LOGGER.info("GL Auto Debug is enabled.");
         else
-            Saurus3D.LOGGER.info("KHR Auto Debug is disabled.");
+            Saurus3D.LOGGER.info("GL Auto Debug is disabled.");
     }
 }

@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.gl.debug.khr;
+package com.tttsaurus.saurus3d.common.core.gl.debug;
 
 public class DebugMessageFilter
 {
