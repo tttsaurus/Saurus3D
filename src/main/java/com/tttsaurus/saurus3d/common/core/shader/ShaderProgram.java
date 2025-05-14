@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.common.core.shader;
 
-import com.tttsaurus.saurus3d.common.core.gl.GlDisposable;
-import com.tttsaurus.saurus3d.common.core.gl.GlResourceManager;
+import com.tttsaurus.saurus3d.common.core.gl.GLDisposable;
+import com.tttsaurus.saurus3d.common.core.gl.GLResourceManager;
 import com.tttsaurus.saurus3d.common.core.reflection.TypeUtils;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformType;
@@ -13,7 +13,7 @@ import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ShaderProgram extends GlDisposable
+public class ShaderProgram extends GLDisposable
 {
     private boolean setup;
     private int prevProgramID;
@@ -124,7 +124,7 @@ public class ShaderProgram extends GlDisposable
         }
 
         setup = true;
-        GlResourceManager.addDisposable(this);
+        GLResourceManager.addDisposable(this);
     }
 
     public int getUniformLocation(UniformField field)

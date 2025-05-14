@@ -1,6 +1,6 @@
 package com.tttsaurus.saurus3d.common.core.gl;
 
-public abstract class GlDisposable implements Comparable<GlDisposable>
+public abstract class GLDisposable implements Comparable<GLDisposable>
 {
     // bigger first
     public int priority() { return 0; }
@@ -8,7 +8,7 @@ public abstract class GlDisposable implements Comparable<GlDisposable>
     public abstract void dispose();
 
     @Override
-    public int compareTo(GlDisposable other)
+    public int compareTo(GLDisposable other)
     {
         return -Integer.compare(this.priority(), other.priority());
     }

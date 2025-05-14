@@ -1,14 +1,14 @@
 package com.tttsaurus.saurus3d.common.core.mesh;
 
-import com.tttsaurus.saurus3d.common.core.gl.GlResourceManager;
-import com.tttsaurus.saurus3d.common.core.gl.GlDisposable;
+import com.tttsaurus.saurus3d.common.core.gl.GLResourceManager;
+import com.tttsaurus.saurus3d.common.core.gl.GLDisposable;
 import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class Mesh extends GlDisposable
+public class Mesh extends GLDisposable
 {
     private float[] vertices;
     private int[] indices;
@@ -189,7 +189,7 @@ public class Mesh extends GlDisposable
         indices = null;
 
         setup = true;
-        GlResourceManager.addDisposable(this);
+        GLResourceManager.addDisposable(this);
     }
 
     public void updateVerticesByMappedBuffer(float[] newVertices)
