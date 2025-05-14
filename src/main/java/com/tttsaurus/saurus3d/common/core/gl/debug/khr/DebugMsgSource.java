@@ -3,7 +3,7 @@ package com.tttsaurus.saurus3d.common.core.gl.debug.khr;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL43;
 
-public enum KHRMsgSource
+public enum DebugMsgSource
 {
     ANY(GL11.GL_DONT_CARE),
     API(GL43.GL_DEBUG_SOURCE_API),
@@ -14,12 +14,12 @@ public enum KHRMsgSource
     OTHER(GL43.GL_DEBUG_SOURCE_OTHER);
 
     public final int glValue;
-    KHRMsgSource(int glValue)
+    DebugMsgSource(int glValue)
     {
         this.glValue = glValue;
     }
 
-    public static KHRMsgSource parse(int value)
+    public static DebugMsgSource parse(int value)
     {
         return switch (value)
         {

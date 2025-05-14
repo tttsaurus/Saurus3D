@@ -3,7 +3,7 @@ package com.tttsaurus.saurus3d.common.core.gl.debug.khr;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL43;
 
-public enum KHRMsgSeverity
+public enum DebugMsgSeverity
 {
     ANY(GL11.GL_DONT_CARE),
     HIGH(GL43.GL_DEBUG_SEVERITY_HIGH),
@@ -12,12 +12,12 @@ public enum KHRMsgSeverity
     NOTIFICATION(GL43.GL_DEBUG_SEVERITY_NOTIFICATION);
 
     public final int glValue;
-    KHRMsgSeverity(int glValue)
+    DebugMsgSeverity(int glValue)
     {
         this.glValue = glValue;
     }
 
-    public static KHRMsgSeverity parse(int value)
+    public static DebugMsgSeverity parse(int value)
     {
         return switch (value)
         {

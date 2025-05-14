@@ -5,9 +5,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.function.IAction;
 import com.tttsaurus.saurus3d.common.core.gl.debug.khr.KHRDebugManager;
-import com.tttsaurus.saurus3d.common.core.gl.debug.khr.KHRMessageFilter;
+import com.tttsaurus.saurus3d.common.core.gl.debug.khr.DebugMessageFilter;
 import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
+import com.tttsaurus.saurus3d.config.ConfigFileHelper;
+import com.tttsaurus.saurus3d.config.Saurus3DDebugConfig;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
@@ -22,38 +25,55 @@ import java.lang.reflect.Method;
 public class MinecraftMixin
 {
     @Inject(method = "shutdown", at = @At("HEAD"))
-    public void shutdown(CallbackInfo ci)
+    private void beforeShutdown(CallbackInfo ci)
     {
         for (IAction action: ShutdownHooks.hooks)
             action.invoke();
     }
 
-    @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false))
-    private void createDisplayInTry(PixelFormat pixel_format, Operation<Void> original) throws LWJGLException
+    @Inject(method = "init", at = @At("HEAD"))
+    private void beforeInit(CallbackInfo info)
     {
-        Display.create(new PixelFormat(), new ContextAttribs(1, 0, 0, ContextAttribs.CONTEXT_DEBUG_BIT_ARB));
+        Saurus3DDebugConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("debug"));
+        Saurus3DDebugConfig.loadConfig();
+    }
+
+    @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false))
+    private void createDisplayInTry(PixelFormat pixelFormat, Operation<Void> original) throws LWJGLException
+    {
+        if (Saurus3DDebugConfig.ENABLE_AUTO_DEBUG)
+            Display.create(pixelFormat, new ContextAttribs(1, 0, 0, ContextAttribs.CONTEXT_DEBUG_BIT_ARB));
+        else
+            original.call(pixelFormat);
     }
 
     @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create()V", remap = false))
     private void createDisplayInCatch(Operation<Void> original) throws LWJGLException
     {
-        Display.create(new PixelFormat(), new ContextAttribs(1, 0, 0, ContextAttribs.CONTEXT_DEBUG_BIT_ARB));
+        if (Saurus3DDebugConfig.ENABLE_AUTO_DEBUG)
+            Display.create(new PixelFormat(), new ContextAttribs(1, 0, 0, ContextAttribs.CONTEXT_DEBUG_BIT_ARB));
+        else
+            original.call();
     }
 
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;createDisplay()V", shift = At.Shift.AFTER))
-    public void createDisplay(CallbackInfo info)
+    private void afterCreateDisplay(CallbackInfo info)
     {
-        try
+        if (!KHRDebugManager.isSupported()) Saurus3DDebugConfig.ENABLE_AUTO_DEBUG = false;
+        if (Saurus3DDebugConfig.ENABLE_AUTO_DEBUG)
         {
-            Method method = KHRDebugManager.class.getDeclaredMethod("enable", KHRMessageFilter.class);
-            method.setAccessible(true);
-            method.invoke(null, new Object[]{null});
+            try
+            {
+                Method method = KHRDebugManager.class.getDeclaredMethod("enable", DebugMessageFilter.class);
+                method.setAccessible(true);
+                method.invoke(null, new Object[]{Saurus3DDebugConfig.AUTO_DEBUG_MSG_FILTER});
+            }
+            catch (Exception ignored) { }
         }
-        catch (Exception ignored) { }
 
         if (KHRDebugManager.isEnable())
-            Saurus3D.LOGGER.info("KHR Debug is enabled.");
+            Saurus3D.LOGGER.info("KHR Auto Debug is enabled.");
         else
-            Saurus3D.LOGGER.info("KHR Debug is disabled.");
+            Saurus3D.LOGGER.info("KHR Auto Debug is disabled.");
     }
 }
