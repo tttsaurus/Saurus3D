@@ -1,6 +1,7 @@
 package com.tttsaurus.saurus3d.proxy;
 
 import com.tttsaurus.saurus3d.Saurus3D;
+import com.tttsaurus.saurus3d.common.core.function.Action;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
 import com.tttsaurus.saurus3d.test.Test;
@@ -21,12 +22,18 @@ public class ClientProxy extends CommonProxy
     {
         super.init(event);
 
-        ShutdownHooks.hooks.add(() ->
+        //<editor-fold desc="shutdown hooks">
+        ShutdownHooks.hooks.add(new Action()
         {
-            Saurus3D.LOGGER.info("Starts disposing OpenGL resources");
-            GLResourceManager.disposeAll();
-            Saurus3D.LOGGER.info("OpenGL resources disposed");
+            @Override
+            public void invoke()
+            {
+                Saurus3D.LOGGER.info("Start disposing OpenGL resources");
+                GLResourceManager.disposeAll();
+                Saurus3D.LOGGER.info("OpenGL resources disposed");
+            }
         });
+        //</editor-fold>
 
         MinecraftForge.EVENT_BUS.register(Test.class);
     }

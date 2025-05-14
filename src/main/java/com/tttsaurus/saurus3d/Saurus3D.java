@@ -7,6 +7,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -28,9 +29,12 @@ public class Saurus3D
             serverSide = "com.tttsaurus.saurus3d.proxy.ServerProxy")
     private static CommonProxy proxy;
 
+    public static ASMDataTable asmDataTable;
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        asmDataTable = event.getAsmData();
         MinecraftForge.EVENT_BUS.register(this);
         proxy.preInit(event);
     }

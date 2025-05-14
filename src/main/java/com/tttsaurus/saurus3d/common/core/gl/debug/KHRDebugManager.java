@@ -1,6 +1,9 @@
 package com.tttsaurus.saurus3d.common.core.gl.debug;
 
 import com.tttsaurus.saurus3d.Saurus3D;
+import com.tttsaurus.saurus3d.common.core.gl.feature.Saurus3DGLFeature;
+import com.tttsaurus.saurus3d.common.core.gl.version.GLVersionHelper;
+import com.tttsaurus.saurus3d.common.core.gl.feature.IGLFeature;
 import com.tttsaurus.saurus3d.config.Saurus3DGLDebugConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -9,20 +12,23 @@ import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.opengl.*;
 import javax.annotation.Nullable;
 
-public final class KHRDebugManager
+@Saurus3DGLFeature("KHR_DEBUG")
+public final class KHRDebugManager implements IGLFeature
 {
-    private static boolean enable = false;
-    public static boolean isEnable() { return enable; }
-
-    public static boolean isSupported()
+    @Override
+    public boolean isSupported()
     {
         boolean supported = false;
 
         ContextCapabilities capabilities = GLContext.getCapabilities();
         if (capabilities.GL_KHR_debug) supported = true;
+        if (GLVersionHelper.supported(4, 3)) supported = true;
 
         return supported;
     }
+
+    private static boolean enable = false;
+    public static boolean isEnable() { return enable; }
 
     // call by reflection
     private static void enable(@Nullable DebugMessageFilter messageFilter)
