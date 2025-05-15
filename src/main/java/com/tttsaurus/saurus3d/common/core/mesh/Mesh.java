@@ -1,25 +1,15 @@
 package com.tttsaurus.saurus3d.common.core.mesh;
 
-import com.tttsaurus.saurus3d.common.core.gl.feature.IGLFeature;
-import com.tttsaurus.saurus3d.common.core.gl.feature.Saurus3DGLFeature;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLDisposable;
-import com.tttsaurus.saurus3d.common.core.gl.version.GLVersionHelper;
 import org.lwjgl.opengl.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-@Saurus3DGLFeature("MESH")
-public class Mesh extends GLDisposable implements IGLFeature
+public class Mesh extends GLDisposable
 {
-    @Override
-    public boolean isSupported()
-    {
-        return GLVersionHelper.supported(3, 0);
-    }
-
     private float[] vertices;
     private int[] indices;
     private float[] instanceData;

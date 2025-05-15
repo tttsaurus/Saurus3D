@@ -3,27 +3,15 @@ package com.tttsaurus.saurus3d.common.core.gl.feature;
 import com.google.common.collect.ImmutableMap;
 import com.tttsaurus.saurus3d.Saurus3D;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class GLFeatureManager
 {
     // key: feature name
-    private static final Map<String, Class<? extends IGLFeature>> features = new HashMap<>();
     private static final Map<String, Boolean> availability = new HashMap<>();
 
     public static ImmutableMap<String, Boolean> getAvailability() { return ImmutableMap.copyOf(availability); }
-    public static ImmutableMap<String, Class<? extends IGLFeature>> getFeatures() { return ImmutableMap.copyOf(features); }
-    public static List<String> getFeatureNames() { return new ArrayList<>(features.keySet()); }
-
-    // call by reflection
-    private static void addFeature(String featureName, Class<? extends IGLFeature> featureClass)
-    {
-        if (!features.containsKey(featureName))
-            features.put(featureName, featureClass);
-    }
 
     // call by reflection
     @SuppressWarnings("all")
@@ -38,7 +26,7 @@ public final class GLFeatureManager
                 Saurus3D.LOGGER.error("Failed to convert " + featureClass.getSimpleName() + ".isSupported() to static and call it to check " + featureName +  " availability.");
                 return;
             }
-            Saurus3D.LOGGER.info(featureClass.getSimpleName() + ".isSupported() is converted to static " + featureHelperClass.getSimpleName() + ".isSupported() to check " + featureName + " availability.");
+            Saurus3D.LOGGER.info(featureClass.getSimpleName() + ".isSupported() is converted to " + featureHelperClass.getSimpleName() + ".isSupported() to check " + featureName + " availability.");
             Saurus3D.LOGGER.info("Now invoking " + featureHelperClass.getSimpleName() + ".isSupported() (may throw InvocationTargetException)");
 
             Method method = featureHelperClass.getDeclaredMethod("isSupported");

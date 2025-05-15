@@ -14,16 +14,20 @@ import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
 import com.tttsaurus.saurus3d.config.ConfigFileHelper;
 import com.tttsaurus.saurus3d.config.Saurus3DGLDebugConfig;
 import com.tttsaurus.saurus3d.config.Saurus3DGLFeatureConfig;
+import com.tttsaurus.saurus3d.test.MyVboRenderList;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.PixelFormat;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -49,6 +53,7 @@ public class MinecraftMixin
         Saurus3D.LOGGER.info("Saurus3D GL Feature Config loaded.");
     }
 
+    //<editor-fold desc="GL debug context">
     @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false))
     private void createDisplayInTry(PixelFormat pixelFormat, Operation<Void> original) throws LWJGLException
     {
@@ -66,6 +71,7 @@ public class MinecraftMixin
         else
             original.call();
     }
+    //</editor-fold>
 
     // just created GL context
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;createDisplay()V", shift = At.Shift.AFTER))
@@ -78,18 +84,15 @@ public class MinecraftMixin
         //</editor-fold>
 
         //<editor-fold desc="GL features initialization">
-        Method addFeatureMethod = null;
         Method checkAvailabilityMethod = null;
         try
         {
-            addFeatureMethod = GLFeatureManager.class.getDeclaredMethod("addFeature", String.class, Class.class);
             checkAvailabilityMethod = GLFeatureManager.class.getDeclaredMethod("checkAvailability", String.class, Class.class);
         }
         catch (Exception ignored) { }
 
-        if (addFeatureMethod != null && checkAvailabilityMethod != null)
+        if (checkAvailabilityMethod != null)
         {
-            addFeatureMethod.setAccessible(true);
             checkAvailabilityMethod.setAccessible(true);
 
             Saurus3D.LOGGER.info("");
@@ -99,7 +102,6 @@ public class MinecraftMixin
                 try
                 {
                     String featureName = featureClass.getAnnotation(Saurus3DGLFeature.class).value();
-                    addFeatureMethod.invoke(null, new Object[]{featureName, featureClass});
                     checkAvailabilityMethod.invoke(null, new Object[]{featureName, featureClass});
                 }
                 catch (Throwable throwable)
@@ -137,5 +139,35 @@ public class MinecraftMixin
         else
             Saurus3D.LOGGER.info("GL Auto Debug is disabled.");
         //</editor-fold>
+    }
+
+    // just set render global
+    @Inject(method = "init", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;renderGlobal:Lnet/minecraft/client/renderer/RenderGlobal;", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+    private void afterSetRenderGlobal(CallbackInfo ci)
+    {
+        Field renderContainerField = null;
+        try
+        {
+            renderContainerField = RenderGlobal.class.getDeclaredField("renderContainer");
+        }
+        catch (Exception ignored)
+        {
+            try
+            {
+                renderContainerField = RenderGlobal.class.getDeclaredField("field_174996_N");
+            }
+            catch (Exception ignored2) { }
+        }
+
+        if (renderContainerField != null)
+        {
+            renderContainerField.setAccessible(true);
+            try
+            {
+                renderContainerField.set(Minecraft.getMinecraft().renderGlobal, new MyVboRenderList());
+                Saurus3D.LOGGER.info("Set renderContainer to MyVboRenderList.");
+            }
+            catch (Exception ignored) { }
+        }
     }
 }

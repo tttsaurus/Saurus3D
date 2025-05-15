@@ -107,7 +107,7 @@ public final class GLFeatureASMHelper
         Class<?> featureHelperClass = null;
 
         String oldClassName = featureClass.getName();
-        String newClassName = oldClassName.replace(featureClass.getSimpleName(), featureClass.getSimpleName() + "Helper");
+        String newClassName = oldClassName.replace(featureClass.getSimpleName(), featureClass.getSimpleName() + "StaticHelper");
 
         ClassLoader classLoader = featureClass.getClassLoader();
 
