@@ -6,7 +6,7 @@ import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMsgSource;
 import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMsgType;
 import net.minecraftforge.common.config.Configuration;
 
-public class Saurus3DGLDebugConfig
+public final class Saurus3DGLDebugConfig
 {
     public static boolean ENABLE_INGAME_DEBUG;
     public static boolean ENABLE_AUTO_DEBUG;

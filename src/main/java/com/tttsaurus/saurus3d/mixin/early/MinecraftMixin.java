@@ -13,6 +13,7 @@ import com.tttsaurus.saurus3d.common.core.gl.version.GLVersionHelper;
 import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
 import com.tttsaurus.saurus3d.config.ConfigFileHelper;
 import com.tttsaurus.saurus3d.config.Saurus3DGLDebugConfig;
+import com.tttsaurus.saurus3d.config.Saurus3DGLFeatureConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.LWJGLException;
@@ -41,6 +42,9 @@ public class MinecraftMixin
     {
         Saurus3DGLDebugConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("gl_debug"));
         Saurus3DGLDebugConfig.loadConfig();
+
+        Saurus3DGLFeatureConfig.CONFIG = ConfigFileHelper.makeFile("gl_feature_classes");
+        Saurus3DGLFeatureConfig.loadConfig();
     }
 
     @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false))
@@ -71,8 +75,6 @@ public class MinecraftMixin
         Saurus3D.LOGGER.info(String.format("OpenGL Version: %d.%d", majorGLVersion, minorGLVersion));
         //</editor-fold>
 
-        GLFeatureManager.featureClasses.add("com.tttsaurus.saurus3d.common.core.gl.debug.KHRDebugManager");
-
         //<editor-fold desc="GL features initialization">
         Method addFeatureMethod = null;
         Method checkAvailabilityMethod = null;
@@ -88,33 +90,18 @@ public class MinecraftMixin
             addFeatureMethod.setAccessible(true);
             checkAvailabilityMethod.setAccessible(true);
 
-            Saurus3D.LOGGER.info("Start collecting Saurus3D GL features.");
-            for (String className: GLFeatureManager.featureClasses)
+            for (Class<? extends IGLFeature> featureClass: Saurus3DGLFeatureConfig.FEATURE_CLASSES)
             {
                 try
                 {
-                    Class<?> clazz = Class.forName(className);
-                    if (IGLFeature.class.isAssignableFrom(clazz))
-                    {
-                        Class<? extends IGLFeature> featureClass = clazz.asSubclass(IGLFeature.class);
-
-                        try
-                        {
-                            String featureName = featureClass.getAnnotation(Saurus3DGLFeature.class).value();
-                            addFeatureMethod.invoke(null, new Object[]{featureName, featureClass});
-                        }
-                        catch (Exception e)
-                        {
-                            Saurus3D.LOGGER.throwing(e);
-                        }
-                    }
+                    String featureName = featureClass.getAnnotation(Saurus3DGLFeature.class).value();
+                    addFeatureMethod.invoke(null, new Object[]{featureName, featureClass});
                 }
-                catch (ClassNotFoundException e)
+                catch (Exception e)
                 {
                     Saurus3D.LOGGER.throwing(e);
                 }
             }
-            Saurus3D.LOGGER.info("Finished collecting Saurus3D GL features. They are: " + String.join(", ", GLFeatureManager.getFeatures()));
 
             Saurus3D.LOGGER.info("Start checking Saurus3D GL feature availabilities.");
             try

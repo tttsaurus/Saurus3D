@@ -12,8 +12,6 @@ import java.util.Map;
 
 public final class GLFeatureManager
 {
-    public static final List<String> featureClasses = new ArrayList<>();
-
     // key: module name
     private static final Map<String, Class<? extends IGLFeature>> features = new HashMap<>();
     private static final Map<String, Boolean> availability = new HashMap<>();
@@ -66,7 +64,10 @@ public final class GLFeatureManager
             defineClassMethod.setAccessible(true);
             featureHelperClass = (Class<?>)defineClassMethod.invoke(classLoader, newClassName, bytes, 0, bytes.length);
         }
-        catch (Throwable ignored) { }
+        catch (Throwable throwable)
+        {
+            Saurus3D.LOGGER.throwing(throwable);
+        }
 
         return featureHelperClass;
     }
@@ -82,7 +83,7 @@ public final class GLFeatureManager
     private static void checkAvailability()
     {
         Saurus3D.LOGGER.info("Some GL feature helper classes will be generated at this stage.");
-        Saurus3D.LOGGER.info("If the game hard crashed, then that is probably related to the improper implementation of the method 'isSupported' from existing GL feature classes.");
+        //Saurus3D.LOGGER.info("If the game hard crashed, then that is probably related to the improper implementation of the method 'isSupported' from existing GL feature classes.");
 
         for (Map.Entry<String, Class<? extends IGLFeature>> entry: features.entrySet())
         {
@@ -90,7 +91,7 @@ public final class GLFeatureManager
             {
                 Class<? extends IGLFeature> featureClass = entry.getValue();
 
-                Saurus3D.LOGGER.info("Start generating a helper class for " + featureClass.getSimpleName() + " to check its availability.");
+                Saurus3D.LOGGER.info("Generating a helper class for " + featureClass.getSimpleName() + " to check its availability.");
                 Class<?> featureHelperClass = generateFeatureHelperClass(featureClass);
                 if (featureHelperClass == null)
                 {
