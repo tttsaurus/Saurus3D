@@ -42,9 +42,11 @@ public class MinecraftMixin
     {
         Saurus3DGLDebugConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("gl_debug"));
         Saurus3DGLDebugConfig.loadConfig();
+        Saurus3D.LOGGER.info("Saurus3D GL Debug Config loaded.");
 
         Saurus3DGLFeatureConfig.CONFIG = ConfigFileHelper.makeFile("gl_feature_classes");
         Saurus3DGLFeatureConfig.loadConfig();
+        Saurus3D.LOGGER.info("Saurus3D GL Feature Config loaded.");
     }
 
     @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false))
@@ -81,7 +83,7 @@ public class MinecraftMixin
         try
         {
             addFeatureMethod = GLFeatureManager.class.getDeclaredMethod("addFeature", String.class, Class.class);
-            checkAvailabilityMethod = GLFeatureManager.class.getDeclaredMethod("checkAvailability");
+            checkAvailabilityMethod = GLFeatureManager.class.getDeclaredMethod("checkAvailability", String.class, Class.class);
         }
         catch (Exception ignored) { }
 
@@ -90,33 +92,29 @@ public class MinecraftMixin
             addFeatureMethod.setAccessible(true);
             checkAvailabilityMethod.setAccessible(true);
 
+            Saurus3D.LOGGER.info("");
+            Saurus3D.LOGGER.info("Start checking Saurus3D GL feature availabilities.");
             for (Class<? extends IGLFeature> featureClass: Saurus3DGLFeatureConfig.FEATURE_CLASSES)
             {
                 try
                 {
                     String featureName = featureClass.getAnnotation(Saurus3DGLFeature.class).value();
                     addFeatureMethod.invoke(null, new Object[]{featureName, featureClass});
+                    checkAvailabilityMethod.invoke(null, new Object[]{featureName, featureClass});
                 }
-                catch (Exception e)
+                catch (Throwable throwable)
                 {
-                    Saurus3D.LOGGER.throwing(e);
+                    Saurus3D.LOGGER.throwing(throwable);
                 }
-            }
-
-            Saurus3D.LOGGER.info("Start checking Saurus3D GL feature availabilities.");
-            try
-            {
-                checkAvailabilityMethod.invoke(null, new Object[]{});
-            }
-            catch (Exception e)
-            {
-                Saurus3D.LOGGER.throwing(e);
             }
             Saurus3D.LOGGER.info("Finished checking Saurus3D GL feature availabilities.");
         }
 
+        Saurus3D.LOGGER.info("");
+        Saurus3D.LOGGER.info("Saurus3D GL features: ");
         for (Map.Entry<String, Boolean> entry: GLFeatureManager.getAvailability().entrySet())
-            Saurus3D.LOGGER.info("GL feature " + entry.getKey() + " is " + (entry.getValue() ? "" : "not ") + "available.");
+            Saurus3D.LOGGER.info("- GL feature " + entry.getKey() + " is " + (entry.getValue() ? "" : "not ") + "available.");
+        Saurus3D.LOGGER.info("");
         //</editor-fold>
 
         //<editor-fold desc="GL auto debug">
