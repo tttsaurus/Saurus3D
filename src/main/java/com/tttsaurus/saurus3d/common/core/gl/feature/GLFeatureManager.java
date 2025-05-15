@@ -10,7 +10,7 @@ import java.util.Map;
 
 public final class GLFeatureManager
 {
-    // key: module name
+    // key: feature name
     private static final Map<String, Class<? extends IGLFeature>> features = new HashMap<>();
     private static final Map<String, Boolean> availability = new HashMap<>();
 
@@ -39,7 +39,7 @@ public final class GLFeatureManager
                 return;
             }
             Saurus3D.LOGGER.info(featureClass.getSimpleName() + ".isSupported() is converted to static " + featureHelperClass.getSimpleName() + ".isSupported() to check " + featureName + " availability.");
-            Saurus3D.LOGGER.info("Calling " + featureHelperClass.getSimpleName() + ".isSupported() (may throw InvocationTargetException)");
+            Saurus3D.LOGGER.info("Now invoking " + featureHelperClass.getSimpleName() + ".isSupported() (may throw InvocationTargetException)");
 
             Method method = featureHelperClass.getDeclaredMethod("isSupported");
             boolean res = (boolean)method.invoke(null, new Object[]{});
