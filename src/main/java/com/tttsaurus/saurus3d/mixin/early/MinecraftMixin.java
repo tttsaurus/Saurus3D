@@ -118,17 +118,19 @@ public class MinecraftMixin
         //</editor-fold>
 
         //<editor-fold desc="GL auto debug">
-        if (!GLFeatureManager.isAvailable("KHR_DEBUG")) Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG = false;
-        if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
+        GLFeatureManager.require("KHR_DEBUG").run(() ->
         {
-            try
+            if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
             {
-                Method method = KHRDebugManager.class.getDeclaredMethod("enable", DebugMessageFilter.class);
-                method.setAccessible(true);
-                method.invoke(null, new Object[]{Saurus3DGLDebugConfig.AUTO_DEBUG_MSG_FILTER});
+                try
+                {
+                    Method method = KHRDebugManager.class.getDeclaredMethod("enable", DebugMessageFilter.class);
+                    method.setAccessible(true);
+                    method.invoke(null, new Object[]{Saurus3DGLDebugConfig.AUTO_DEBUG_MSG_FILTER});
+                }
+                catch (Exception ignored) { }
             }
-            catch (Exception ignored) { }
-        }
+        });
 
         if (KHRDebugManager.isEnable())
             Saurus3D.LOGGER.info("GL Auto Debug is enabled.");

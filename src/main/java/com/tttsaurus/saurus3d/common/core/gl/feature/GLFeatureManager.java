@@ -56,4 +56,24 @@ public final class GLFeatureManager
         else
             return res;
     }
+
+    public static void hardRequire(String featureName)
+    {
+        if (!isAvailable(featureName))
+            throw new GLFeatureNotFoundException("Saurus3D GL feature " + featureName + " does not exist or is not available.");
+    }
+    public static void hardRequire(String... featureNames)
+    {
+        for (String featureName: featureNames)
+            hardRequire(featureName);
+    }
+
+    public static GLFeatureScope require(String featureName)
+    {
+        return new GLFeatureScope(featureName);
+    }
+    public static GLFeatureScope require(String... featureNames)
+    {
+        return new GLFeatureScope(featureNames);
+    }
 }
