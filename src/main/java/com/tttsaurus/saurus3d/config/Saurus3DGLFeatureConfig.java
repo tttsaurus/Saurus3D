@@ -3,6 +3,7 @@ package com.tttsaurus.saurus3d.config;
 import com.tttsaurus.saurus3d.common.core.gl.debug.KHRDebugManager;
 import com.tttsaurus.saurus3d.common.core.gl.feature.IGLFeature;
 import com.tttsaurus.saurus3d.common.core.gl.feature.Saurus3DGLFeature;
+import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public final class Saurus3DGLFeatureConfig
 
         // default feature classes
         FEATURE_CLASSES.add(KHRDebugManager.class);
+        FEATURE_CLASSES.add(Mesh.class);
 
         // read feature classes
         List<String> rawClasses = new ArrayList<>();
