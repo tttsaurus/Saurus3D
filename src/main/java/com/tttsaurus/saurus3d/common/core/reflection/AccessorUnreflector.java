@@ -7,7 +7,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-public final class UnreflectUtils
+public final class AccessorUnreflector
 {
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
@@ -75,7 +75,10 @@ public final class UnreflectUtils
     //<editor-fold desc="unreflect">
     private static FuncBase unreflectGetter(Field field)
     {
-        return unreflectGetterHelper(field, field.getType(), field.getDeclaringClass());
+        if (field.getType().isPrimitive())
+            return unreflectGetterHelper(field, TypeUtils.toWrappedPrimitive(field.getType()), field.getDeclaringClass());
+        else
+            return unreflectGetterHelper(field, field.getType(), field.getDeclaringClass());
     }
     @SuppressWarnings("all")
     @Nullable
@@ -124,7 +127,10 @@ public final class UnreflectUtils
 
     private static ActionBase unreflectSetter(Field field)
     {
-        return unreflectSetterHelper(field, field.getType(), field.getDeclaringClass());
+        if (field.getType().isPrimitive())
+            return unreflectSetterHelper(field, TypeUtils.toWrappedPrimitive(field.getType()), field.getDeclaringClass());
+        else
+            return unreflectSetterHelper(field, field.getType(), field.getDeclaringClass());
     }
     @SuppressWarnings("all")
     @Nullable

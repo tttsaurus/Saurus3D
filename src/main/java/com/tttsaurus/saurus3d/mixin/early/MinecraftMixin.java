@@ -3,6 +3,7 @@ package com.tttsaurus.saurus3d.mixin.early;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.tttsaurus.saurus3d.Saurus3D;
+import com.tttsaurus.saurus3d.common.core.RenderUtils;
 import com.tttsaurus.saurus3d.common.core.function.Action;
 import com.tttsaurus.saurus3d.common.core.gl.debug.KHRDebugManager;
 import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMessageFilter;
@@ -115,7 +116,7 @@ public class MinecraftMixin
         Saurus3D.LOGGER.info("");
         Saurus3D.LOGGER.info("Saurus3D GL features: ");
         for (Map.Entry<String, Boolean> entry: GLFeatureManager.getAvailability().entrySet())
-            Saurus3D.LOGGER.info("- GL feature " + entry.getKey() + " is " + (entry.getValue() ? "" : "not ") + "available.");
+            Saurus3D.LOGGER.info("- Feature " + entry.getKey() + " is " + (entry.getValue() ? "" : "not ") + "available.");
         Saurus3D.LOGGER.info("");
         //</editor-fold>
 
@@ -138,6 +139,42 @@ public class MinecraftMixin
             Saurus3D.LOGGER.info("GL Auto Debug is enabled.");
         else
             Saurus3D.LOGGER.info("GL Auto Debug is disabled.");
+        //</editor-fold>
+
+        //<editor-fold desc="init RenderUtils">
+        Saurus3D.LOGGER.info("");
+        Saurus3D.LOGGER.info("Start initializing RenderUtils.");
+        try
+        {
+            RenderUtils.getModelViewMatrix();
+            Saurus3D.LOGGER.info("RenderUtils.getModelViewMatrix() is ready.");
+        }
+        catch (Throwable throwable)
+        {
+            Saurus3D.LOGGER.warn("RenderUtils.getModelViewMatrix() is not ready.");
+            Saurus3D.LOGGER.throwing(throwable);
+        }
+        try
+        {
+            RenderUtils.getProjectionMatrix();
+            Saurus3D.LOGGER.info("RenderUtils.getProjectionMatrix() is ready.");
+        }
+        catch (Throwable throwable)
+        {
+            Saurus3D.LOGGER.warn("RenderUtils.getProjectionMatrix() is not ready.");
+            Saurus3D.LOGGER.throwing(throwable);
+        }
+        try
+        {
+            RenderUtils.getPartialTick();
+            Saurus3D.LOGGER.info("RenderUtils.getPartialTick() is ready.");
+        }
+        catch (Throwable throwable)
+        {
+            Saurus3D.LOGGER.warn("RenderUtils.getPartialTick() is not ready.");
+            Saurus3D.LOGGER.throwing(throwable);
+        }
+        Saurus3D.LOGGER.info("Finished initializing RenderUtils.");
         //</editor-fold>
     }
 
