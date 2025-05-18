@@ -2,6 +2,7 @@ package com.tttsaurus.saurus3d.test;
 
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.RenderUtils;
+import com.tttsaurus.saurus3d.common.core.mcpatches.IBufferBuilderExtra;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IRenderChunkExtra;
 import com.tttsaurus.saurus3d.common.core.shader.Shader;
 import com.tttsaurus.saurus3d.common.core.shader.ShaderManager;
@@ -18,9 +19,13 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 
+import java.nio.ByteBuffer;
+
 public class MyVboRenderList extends ChunkRenderContainer
 {
     private ShaderProgram program = null;
+
+    private boolean flag = true;
 
     // <https://github.com/Laike-Endaril/Luminous/blob/1.12.2/src/main/java/com/fantasticsource/luminous/shaders/VboRenderListEdit.java>
     @Override
@@ -47,8 +52,40 @@ public class MyVboRenderList extends ChunkRenderContainer
 
             for (RenderChunk renderChunk : renderChunks)
             {
-                BufferBuilder bufferBuilder = ((IRenderChunkExtra)renderChunk).getBufferBuilders()[layer.ordinal()];
+                if (flag)
+                {
+                    BufferBuilder bufferBuilder = ((IRenderChunkExtra)renderChunk).getBufferBuilders()[layer.ordinal()];
+                    ByteBuffer buffer = ((IBufferBuilderExtra)bufferBuilder).getByteBuffer();
 
+                    int vertexSize = 28;
+                    int vertexCount = buffer.limit() / vertexSize;
+
+                    buffer.rewind();
+
+                    for (int i = 0; i < vertexCount; i++)
+                    {
+                        int base = i * vertexSize;
+
+                        float x = buffer.getFloat(base);
+                        float y = buffer.getFloat(base + 4);
+                        float z = buffer.getFloat(base + 8);
+
+                        int r = buffer.get(base + 12) & 0xFF;
+                        int g = buffer.get(base + 13) & 0xFF;
+                        int b = buffer.get(base + 14) & 0xFF;
+                        int a = buffer.get(base + 15) & 0xFF;
+
+                        float u0 = buffer.getFloat(base + 16);
+                        float v0 = buffer.getFloat(base + 20);
+
+                        int u1 = buffer.getShort(base + 24) & 0xFFFF;
+                        int v1 = buffer.getShort(base + 26) & 0xFFFF;
+
+                        Saurus3D.LOGGER.info(String.format("Vertex %d: Pos(%.2f, %.2f, %.2f), Color(%d, %d, %d, %d), UV0(%.2f, %.2f), UV1(%d, %d)", i, x, y, z, r, g, b, a, u0, v0, u1, v1));
+                    }
+
+                    flag = false;
+                }
 
 //                VertexBuffer vertexbuffer = renderChunk.getVertexBufferByLayer(layer.ordinal());
 //
