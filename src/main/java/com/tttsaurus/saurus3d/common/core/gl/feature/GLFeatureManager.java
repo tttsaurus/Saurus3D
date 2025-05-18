@@ -2,6 +2,7 @@ package com.tttsaurus.saurus3d.common.core.gl.feature;
 
 import com.google.common.collect.ImmutableMap;
 import com.tttsaurus.saurus3d.Saurus3D;
+import com.tttsaurus.saurus3d.common.core.gl.exception.GLFeatureNotFoundException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
