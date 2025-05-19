@@ -1,15 +1,17 @@
 package com.tttsaurus.saurus3d.common.core.mesh.buffer;
 
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
-import com.tttsaurus.saurus3d.common.core.gl.exception.GLMappedBufferException;
+import com.tttsaurus.saurus3d.common.core.gl.exception.GLMapBufferException;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLOverflowException;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalBufferIDException;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLDisposable;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import java.nio.ByteBuffer;
 
-public class VBO
+public class VBO extends GLDisposable
 {
     private BufferID vboID = null;
     private int vboSize;
@@ -31,6 +33,8 @@ public class VBO
     //<editor-fold desc="id">
     public void setVboID(BufferID vboID)
     {
+        if (this.vboID != null)
+            throw new GLIllegalStateException("Cannot set VBO ID again.");
         if (vboID.type != BufferType.VBO)
             throw new GLIllegalBufferIDException("Buffer ID must be a VBO ID.");
 
@@ -41,6 +45,8 @@ public class VBO
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
         vboSize = GL15.glGetBufferParameteri(vboID.id, GL15.GL_BUFFER_SIZE);
         if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+
+        GLResourceManager.addDisposable(this);
     }
     public BufferID getVboID()
     {
@@ -140,13 +146,22 @@ public class VBO
 
         if (mappedBuffer != null)
         {
-            mappedBuffer.position(offset).put(byteBuffer);
+            mappedBuffer.position(offset);
+            mappedBuffer.put(byteBuffer);
             if (unmap) GL15.glUnmapBuffer(GL15.GL_ARRAY_BUFFER);
         }
         else
-            throw new GLMappedBufferException("Failed to map buffer.");
+            throw new GLMapBufferException("Failed to map buffer.");
 
         if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
     }
     //</editor-fold>
+
+    @Override
+    public void dispose()
+    {
+        if (vboID != null)
+            if (GL15.glIsBuffer(vboID.id))
+                GL15.glDeleteBuffers(vboID.id);
+    }
 }

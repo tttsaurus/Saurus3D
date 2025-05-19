@@ -2,14 +2,16 @@ package com.tttsaurus.saurus3d.common.core.mesh.buffer;
 
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalBufferIDException;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
-import com.tttsaurus.saurus3d.common.core.gl.exception.GLMappedBufferException;
+import com.tttsaurus.saurus3d.common.core.gl.exception.GLMapBufferException;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLOverflowException;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLDisposable;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import java.nio.ByteBuffer;
 
-public class EBO
+public class EBO extends GLDisposable
 {
     private BufferID eboID = null;
     private int eboSize;
@@ -31,6 +33,8 @@ public class EBO
     //<editor-fold desc="id">
     public void setEboID(BufferID eboID)
     {
+        if (this.eboID != null)
+            throw new GLIllegalStateException("Cannot set EBO ID again.");
         if (eboID.type != BufferType.EBO)
             throw new GLIllegalBufferIDException("Buffer ID must be an EBO ID.");
 
@@ -41,6 +45,8 @@ public class EBO
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
         eboSize = GL15.glGetBufferParameteri(eboID.id, GL15.GL_BUFFER_SIZE);
         if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
+
+        GLResourceManager.addDisposable(this);
     }
     public BufferID getEboID()
     {
@@ -140,13 +146,22 @@ public class EBO
 
         if (mappedBuffer != null)
         {
-            mappedBuffer.position(offset).put(byteBuffer);
+            mappedBuffer.position(offset);
+            mappedBuffer.put(byteBuffer);
             if (unmap) GL15.glUnmapBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER);
         }
         else
-            throw new GLMappedBufferException("Failed to map buffer.");
+            throw new GLMapBufferException("Failed to map buffer.");
 
         if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
     }
     //</editor-fold>
+
+    @Override
+    public void dispose()
+    {
+        if (eboID != null)
+            if (GL15.glIsBuffer(eboID.id))
+                GL15.glDeleteBuffers(eboID.id);
+    }
 }

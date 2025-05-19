@@ -5,7 +5,7 @@ public class BufferID
     protected final int id;
     protected final BufferType type;
 
-    public BufferID(int id, BufferType type)
+    protected BufferID(int id, BufferType type)
     {
         this.id = id;
         this.type = type;

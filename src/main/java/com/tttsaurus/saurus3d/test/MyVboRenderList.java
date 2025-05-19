@@ -4,6 +4,10 @@ import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.RenderUtils;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IBufferBuilderExtra;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IRenderChunkExtra;
+import com.tttsaurus.saurus3d.common.core.mesh.attribute.AttributeLayout;
+import com.tttsaurus.saurus3d.common.core.mesh.attribute.Slot;
+import com.tttsaurus.saurus3d.common.core.mesh.attribute.Stride;
+import com.tttsaurus.saurus3d.common.core.mesh.attribute.Type;
 import com.tttsaurus.saurus3d.common.core.shader.Shader;
 import com.tttsaurus.saurus3d.common.core.shader.ShaderManager;
 import com.tttsaurus.saurus3d.common.core.shader.ShaderProgram;
@@ -54,6 +58,15 @@ public class MyVboRenderList extends ChunkRenderContainer
             {
                 if (flag)
                 {
+                    AttributeLayout layout = new AttributeLayout();
+                    layout.push(new Stride(32)
+                                .push(new Slot(Type.FLOAT, 3))
+                                .push(new Slot(Type.FLOAT, 2))
+                                .push(new Slot(Type.FLOAT, 3)))
+                          .push(new Stride(4)
+                                .push(new Slot(Type.UNSIGNED_BYTE, 4).setNormalize(true).setDivisor(1)));
+                    Saurus3D.LOGGER.info(layout.getDebugReport());
+
                     BufferBuilder bufferBuilder = ((IRenderChunkExtra)renderChunk).getBufferBuilders()[layer.ordinal()];
                     ByteBuffer buffer = ((IBufferBuilderExtra)bufferBuilder).getByteBuffer();
 
