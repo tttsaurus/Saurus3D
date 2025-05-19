@@ -30,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 @Mixin(Minecraft.class)
@@ -127,9 +128,9 @@ public class MinecraftMixin
             {
                 try
                 {
-                    Method method = KHRDebugManager.class.getDeclaredMethod("enable", DebugMessageFilter.class);
+                    Method method = KHRDebugManager.class.getDeclaredMethod("enable", List.class);
                     method.setAccessible(true);
-                    method.invoke(null, new Object[]{Saurus3DGLDebugConfig.AUTO_DEBUG_MSG_FILTER});
+                    method.invoke(null, new Object[]{Saurus3DGLDebugConfig.AUTO_DEBUG_MSG_FILTERS});
                 }
                 catch (Exception ignored) { }
             }

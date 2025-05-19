@@ -7,7 +7,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.opengl.*;
-import javax.annotation.Nullable;
+import java.util.List;
 
 public final class KHRDebugManager
 {
@@ -15,7 +15,7 @@ public final class KHRDebugManager
     public static boolean isEnable() { return enable; }
 
     // call by reflection
-    private static void enable(@Nullable DebugMessageFilter messageFilter)
+    private static void enable(List<DebugMessageFilter> messageFilters)
     {
         if (enable) return;
 
@@ -24,10 +24,11 @@ public final class KHRDebugManager
 
         GL43.glDebugMessageCallback(new KHRDebugCallback(KHRDebugManager::log));
 
-        if (messageFilter == null || messageFilter.getIdentifier().equals(DebugMessageFilter.IDENTIFIR_DEFAULT))
-            GL43.glDebugMessageControl(GL11.GL_DONT_CARE, GL11.GL_DONT_CARE, GL11.GL_DONT_CARE, null, true);
-        else
-            GL43.glDebugMessageControl(messageFilter.getSource().glValue, messageFilter.getType().glValue, messageFilter.getSeverity().glValue, null, true);
+        // disable all
+        GL43.glDebugMessageControl(GL11.GL_DONT_CARE, GL11.GL_DONT_CARE, GL11.GL_DONT_CARE, null, false);
+
+        for (DebugMessageFilter filter: messageFilters)
+            GL43.glDebugMessageControl(filter.getSource().glValue, filter.getType().glValue, filter.getSeverity().glValue, null, true);
 
         enable = true;
     }
