@@ -10,11 +10,17 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 
 public class EBO extends GLDisposable
 {
     private BufferID eboID = null;
     private int eboSize;
+    private int indicesLength;
+
+    public int getEboSize() { return eboSize; }
+    public int getIndicesLength() { return indicesLength; }
 
     private boolean autoRebindToOldEbo = false;
     public boolean isAutoRebindToOldEbo() { return autoRebindToOldEbo; }
@@ -42,8 +48,13 @@ public class EBO extends GLDisposable
 
         int prevEbo = 0;
         if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
         eboSize = GL15.glGetBufferParameteri(eboID.id, GL15.GL_BUFFER_SIZE);
+        indicesLength = eboSize / 4;
+        if (eboSize % 4 != 0)
+            throw new GLIllegalStateException("Size must be a multiple of 4 because they are indices.");
+
         if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
 
         GLResourceManager.addDisposable(this);
@@ -59,7 +70,23 @@ public class EBO extends GLDisposable
     //</editor-fold>
 
     //<editor-fold desc="upload">
-    public void directUpload(ByteBuffer byteBuffer)
+    public void directUpload(int[] arr)
+    {
+        ByteBuffer byteBuffer = ByteBuffer
+                .allocateDirect(arr.length * Integer.BYTES)
+                .order(ByteOrder.nativeOrder());
+
+        IntBuffer intView = byteBuffer.asIntBuffer();
+        intView.put(arr);
+        intView.flip();
+
+        byteBuffer.limit(intView.limit() * Integer.BYTES);
+        byteBuffer.position(0);
+
+        directUpload(byteBuffer);
+        indicesLength = arr.length;
+    }
+    private void directUpload(ByteBuffer byteBuffer)
     {
         if (eboID == null)
             throw new GLIllegalBufferIDException("Must set an EBO ID first.");
@@ -78,6 +105,8 @@ public class EBO extends GLDisposable
             throw new GLIllegalBufferIDException("Must set an EBO ID first.");
         if (size < 0)
             throw new GLIllegalStateException("Cannot have negative size.");
+        if (size % 4 != 0)
+            throw new GLIllegalStateException("Size must be a multiple of 4 because they are indices.");
 
         int prevEbo = 0;
         if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
@@ -86,6 +115,7 @@ public class EBO extends GLDisposable
         if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
 
         eboSize = size;
+        indicesLength = eboSize / 4;
     }
     public void uploadBySubData(int offset, ByteBuffer byteBuffer)
     {

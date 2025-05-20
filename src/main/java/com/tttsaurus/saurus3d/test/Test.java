@@ -120,8 +120,8 @@ public final class Test
 //
 //            mesh = new Mesh(vertices, indices);
 
-            Saurus3D.LOGGER.info("V len: " + mesh.getVerticesLength());
-            Saurus3D.LOGGER.info("I len: " + mesh.getIndicesLength());
+            //Saurus3D.LOGGER.info("V len: " + mesh.getVerticesLength());
+            //Saurus3D.LOGGER.info("I len: " + mesh.getIndicesLength());
             if (Minecraft.getMinecraft().player != null)
                 Minecraft.getMinecraft().player.sendChatMessage("finish");
 

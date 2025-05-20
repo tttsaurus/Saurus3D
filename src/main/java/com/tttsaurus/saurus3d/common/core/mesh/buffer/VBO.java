@@ -10,11 +10,15 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 
 public class VBO extends GLDisposable
 {
     private BufferID vboID = null;
     private int vboSize;
+
+    public int getVboSize() { return vboSize; }
 
     private boolean autoRebindToOldVbo = false;
     public boolean isAutoRebindToOldVbo() { return autoRebindToOldVbo; }
@@ -59,6 +63,21 @@ public class VBO extends GLDisposable
     //</editor-fold>
 
     //<editor-fold desc="upload">
+    public void directUpload(float[] arr)
+    {
+        ByteBuffer byteBuffer = ByteBuffer
+                .allocateDirect(arr.length * Float.BYTES)
+                .order(ByteOrder.nativeOrder());
+
+        FloatBuffer floatView = byteBuffer.asFloatBuffer();
+        floatView.put(arr);
+        floatView.flip();
+
+        byteBuffer.limit(floatView.limit() * Float.BYTES);
+        byteBuffer.position(0);
+
+        directUpload(byteBuffer);
+    }
     public void directUpload(ByteBuffer byteBuffer)
     {
         if (vboID == null)

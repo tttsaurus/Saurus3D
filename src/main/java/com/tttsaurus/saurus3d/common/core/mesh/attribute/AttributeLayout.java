@@ -1,8 +1,8 @@
 package com.tttsaurus.saurus3d.common.core.mesh.attribute;
 
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL33;
+import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
+import com.tttsaurus.saurus3d.common.core.mesh.buffer.VBO;
+import org.lwjgl.opengl.*;
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -11,6 +11,8 @@ import java.util.Iterator;
 public class AttributeLayout
 {
     private final Deque<Stride> strideStack = new ArrayDeque<>();
+
+    public int getStrideCount() { return strideStack.size(); }
 
     public AttributeLayout push(Stride stride)
     {
@@ -71,13 +73,23 @@ public class AttributeLayout
         return builder.toString();
     }
 
-    public void uploadToGL()
+    public void uploadToGL(VBO... vbos)
     {
+        if (vbos.length != strideStack.size())
+            throw new GLIllegalStateException("Number of VBOs must match the number of strides.");
+        for (VBO vbo: vbos)
+            if (vbo.getVboID() == null)
+                throw new GLIllegalStateException("Each VBO must have an ID first.");
+
+        int prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+
         int attributeIndex = 0;
 
+        int strideIndex = 0;
         Iterator<Stride> strideIter = strideStack.descendingIterator();
         while (strideIter.hasNext())
         {
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbos[strideIndex].getVboID().getId());
             Stride stride = strideIter.next();
 
             int usedSlotSize = 0;
@@ -112,6 +124,9 @@ public class AttributeLayout
                 attributeIndex++;
                 usedSlotSize += slot.getSize();
             }
+            strideIndex++;
         }
+
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
     }
 }

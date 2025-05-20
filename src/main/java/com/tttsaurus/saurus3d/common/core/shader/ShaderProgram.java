@@ -349,5 +349,6 @@ public class ShaderProgram extends GLDisposable
         for (int shaderID: shaderIDs)
             GL20.glDetachShader(programID, shaderID);
         GL20.glDeleteProgram(programID);
+        setup = false;
     }
 }

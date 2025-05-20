@@ -1,5 +1,11 @@
 package com.tttsaurus.saurus3d.common.impl.model;
 
+import com.tttsaurus.saurus3d.common.core.mesh.attribute.AttributeLayout;
+import com.tttsaurus.saurus3d.common.core.mesh.attribute.Slot;
+import com.tttsaurus.saurus3d.common.core.mesh.attribute.Stride;
+import com.tttsaurus.saurus3d.common.core.mesh.attribute.Type;
+import com.tttsaurus.saurus3d.common.core.mesh.buffer.EBO;
+import com.tttsaurus.saurus3d.common.core.mesh.buffer.VBO;
 import com.tttsaurus.saurus3d.common.core.model.IModelLoader;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
 import com.tttsaurus.saurus3d.common.core.reader.RlReaderUtils;
@@ -115,6 +121,22 @@ public class ObjModelLoader implements IModelLoader
             indices[index++] = face[6];
         }
 
-        return new Mesh(vertexData, indices);
+        AttributeLayout layout = new AttributeLayout();
+        layout.push(new Stride(32)
+                .push(new Slot(Type.FLOAT, 3))
+                .push(new Slot(Type.FLOAT, 2))
+                .push(new Slot(Type.FLOAT, 3)));
+
+        EBO ebo = new EBO();
+        ebo.setAutoRebindToOldEbo(true);
+        ebo.setEboID(EBO.genEboID());
+        ebo.directUpload(indices);
+
+        VBO vbo = new VBO();
+        vbo.setAutoRebindToOldVbo(true);
+        vbo.setVboID(VBO.genVboID());
+        vbo.directUpload(vertexData);
+
+        return new Mesh(layout, ebo, vbo);
     }
 }

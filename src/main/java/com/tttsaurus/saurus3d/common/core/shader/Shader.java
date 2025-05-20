@@ -87,5 +87,6 @@ public class Shader extends GLDisposable
     {
         if (shaderID != 0)
             GL20.glDeleteShader(shaderID);
+        setup = false;
     }
 }

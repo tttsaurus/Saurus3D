@@ -1,127 +1,53 @@
 package com.tttsaurus.saurus3d.common.core.mesh;
 
+import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLDisposable;
+import com.tttsaurus.saurus3d.common.core.mesh.attribute.AttributeLayout;
+import com.tttsaurus.saurus3d.common.core.mesh.buffer.EBO;
+import com.tttsaurus.saurus3d.common.core.mesh.buffer.VBO;
 import org.lwjgl.opengl.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Mesh extends GLDisposable
 {
-    private float[] vertices;
-    private int[] indices;
-    private float[] instanceData;
-
-    private ByteBuffer vertexBuffer;
-    private ByteBuffer indexBuffer;
-    private ByteBuffer instanceDataBuffer;
-
     private boolean setup;
+
+    private final AttributeLayout attributeLayout;
+    private final EBO ebo;
+    private final List<VBO> vbos = new ArrayList<>();
+
+    private int vaoID;
     private int eboIndexOffset;
 
-    private final int verticesLength;
-    private final int indicesLength;
-    private int instanceDataLength;
-    private int vao;
-    private int vbo;
-    private int ebo;
-
     private boolean instancing;
-    private int instancingVbo;
-    private int instanceDataUnitSize;
     private int instancePrimCount;
-    private IManageInstancingLayout customInstancingLayout = null;
 
-    public interface IManageInstancingLayout
-    {
-        void manage();
-    }
+    public void setInstancing(boolean flag) { instancing = flag; }
+    public void setInstancePrimCount(int count) { instancePrimCount = count; }
 
-    public void setCustomInstancingLayout(IManageInstancingLayout customInstancingLayout)
-    {
-        if (setup)
-            throw new IllegalStateException("Only call this method before setup");
-        this.customInstancingLayout = customInstancingLayout;
-    }
+    public boolean getSetup() { return setup; }
+    public int getVaoID() { return vaoID; }
 
-    public void enableInstancing()
-    {
-        if (setup)
-            throw new IllegalStateException("Only call this method before setup");
-        instancing = true;
-    }
+    protected int getEboIndexOffset() { return eboIndexOffset; }
+    protected void setEboIndexOffset(int offset) { eboIndexOffset = offset; }
 
-    public void setInstanceData(float[] instanceData)
+    public Mesh(AttributeLayout attributeLayout, EBO ebo, VBO... vbos)
     {
-        if (setup)
-            throw new IllegalStateException("Only call this method before setup");
-        this.instanceData = instanceData;
-        instanceDataLength = instanceData.length;
-    }
+        if (vbos.length != attributeLayout.getStrideCount())
+            throw new GLIllegalStateException("Number of VBOs must match the number of strides in the attribute layout.");
+        if (ebo.getEboID() == null)
+            throw new GLIllegalStateException("EBO must have an ID first.");
+        for (VBO vbo: vbos)
+            if (vbo.getVboID() == null)
+                throw new GLIllegalStateException("Each VBO must have an ID first.");
 
-    public void setInstanceDataUnitSize(int size)
-    {
-        if (setup)
-            throw new IllegalStateException("Only call this method before setup");
-        instanceDataUnitSize = size;
-    }
+        this.attributeLayout = attributeLayout;
+        this.ebo = ebo;
+        this.vbos.addAll(Arrays.asList(vbos));
 
-    public void setInstancePrimCount(int count)
-    {
-        instancePrimCount = count;
-    }
-
-    public int getInstancingVbo()
-    {
-        return instancingVbo;
-    }
-
-    public int getVerticesLength()
-    {
-        return verticesLength;
-    }
-
-    public int getIndicesLength()
-    {
-        return indicesLength;
-    }
-
-    public int getVao()
-    {
-        return vao;
-    }
-
-    public int getVbo()
-    {
-        return vbo;
-    }
-
-    public int getEbo()
-    {
-        return ebo;
-    }
-
-    public boolean getSetup()
-    {
-        return setup;
-    }
-
-    protected int getEboIndexOffset()
-    {
-        return eboIndexOffset;
-    }
-
-    protected void setEboIndexOffset(int offset)
-    {
-        eboIndexOffset = offset;
-    }
-
-    public Mesh(float[] vertices, int[] indices)
-    {
-        this.vertices = vertices;
-        this.indices = indices;
-        verticesLength = vertices.length;
-        indicesLength = indices.length;
         setup = false;
         eboIndexOffset = 0;
     }
@@ -131,60 +57,16 @@ public class Mesh extends GLDisposable
         if (setup) return;
 
         int prevVao = GL11.glGetInteger(GL30.GL_VERTEX_ARRAY_BINDING);
-        int prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
         int prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
-        vao = GL30.glGenVertexArrays();
-        GL30.glBindVertexArray(vao);
+        vaoID = GL30.glGenVertexArrays();
+        GL30.glBindVertexArray(vaoID);
 
-        vertexBuffer = ByteBuffer.allocateDirect(vertices.length * Float.BYTES).order(ByteOrder.nativeOrder());
-        vertexBuffer.asFloatBuffer().put(vertices).flip();
+        attributeLayout.uploadToGL(vbos.toArray(new VBO[0]));
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo.getEboID().getId());
 
-        indexBuffer = ByteBuffer.allocateDirect(indices.length * Integer.BYTES).order(ByteOrder.nativeOrder());
-        indexBuffer.asIntBuffer().put(indices).flip();
-
-        vbo = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertexBuffer, GL15.GL_STATIC_DRAW);
-
-        ebo = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
-        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL15.GL_STATIC_DRAW);
-
-        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 8 * Float.BYTES, 0);  // First 3 floats for position
-        GL20.glEnableVertexAttribArray(0);
-
-        GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);  // Next 2 floats for texCoord
-        GL20.glEnableVertexAttribArray(1);
-
-        GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, 8 * Float.BYTES, 5 * Float.BYTES);  // Last 3 floats for normal
-        GL20.glEnableVertexAttribArray(2);
-
-        if (instancing) {
-            instanceDataBuffer = ByteBuffer.allocateDirect(instanceData.length * Float.BYTES).order(ByteOrder.nativeOrder());
-            instanceDataBuffer.asFloatBuffer().put(instanceData).flip();
-
-            instancingVbo = GL15.glGenBuffers();
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, instancingVbo);
-            GL15.glBufferData(GL15.GL_ARRAY_BUFFER, instanceDataBuffer, GL15.GL_STATIC_DRAW);
-
-            if (customInstancingLayout == null) {
-                GL20.glVertexAttribPointer(3, instanceDataUnitSize, GL11.GL_FLOAT, false, instanceDataUnitSize * Float.BYTES, 0);
-                GL20.glEnableVertexAttribArray(3);
-                GL33.glVertexAttribDivisor(3, 1);
-            } else {
-                customInstancingLayout.manage();
-            }
-
-            instanceData = null;
-        }
-
-        GL30.glBindVertexArray(prevVao);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
-
-        vertices = null;
-        indices = null;
+        GL30.glBindVertexArray(prevVao);
 
         setup = true;
         GLResourceManager.addDisposable(this);
@@ -192,33 +74,25 @@ public class Mesh extends GLDisposable
 
     public void render()
     {
-        if (!setup) return;
+        if (!setup)
+            throw new GLIllegalStateException("Mesh must be set up first.");
 
         int prevVao = GL11.glGetInteger(GL30.GL_VERTEX_ARRAY_BINDING);
-        int prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
-        GL30.glBindVertexArray(vao);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
+        GL30.glBindVertexArray(vaoID);
 
         if (instancing)
-            GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, indicesLength, GL11.GL_UNSIGNED_INT, (long) eboIndexOffset * Integer.BYTES, instancePrimCount);
+            GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, ebo.getIndicesLength(), GL11.GL_UNSIGNED_INT, (long) eboIndexOffset * Integer.BYTES, instancePrimCount);
         else
-            GL11.glDrawElements(GL11.GL_TRIANGLES, indicesLength, GL11.GL_UNSIGNED_INT, (long) eboIndexOffset * Integer.BYTES);
+            GL11.glDrawElements(GL11.GL_TRIANGLES, ebo.getIndicesLength(), GL11.GL_UNSIGNED_INT, (long) eboIndexOffset * Integer.BYTES);
 
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
         GL30.glBindVertexArray(prevVao);
     }
 
     @Override
     public void dispose()
     {
-        GL30.glDeleteVertexArrays(vao);
-        GL15.glDeleteBuffers(vbo);
-        GL15.glDeleteBuffers(ebo);
-        if (instancing) GL15.glDeleteBuffers(instancingVbo);
-        vertexBuffer = null;
-        indexBuffer = null;
-        instanceDataBuffer = null;
+        GL30.glDeleteVertexArrays(vaoID);
         setup = false;
     }
 }
