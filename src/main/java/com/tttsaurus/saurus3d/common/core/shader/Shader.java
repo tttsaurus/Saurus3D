@@ -26,7 +26,7 @@ public class Shader extends GLDisposable
 
     private String shaderSource;
 
-    private boolean setup;
+    private boolean setup = false;
     private int shaderID;
     private final ShaderType shaderType;
     private boolean valid = true;

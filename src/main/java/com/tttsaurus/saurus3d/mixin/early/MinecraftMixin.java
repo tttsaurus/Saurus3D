@@ -202,8 +202,8 @@ public class MinecraftMixin
             renderContainerField.setAccessible(true);
             try
             {
-                renderContainerField.set(Minecraft.getMinecraft().renderGlobal, new MyVboRenderList());
-                Saurus3D.LOGGER.info("Set renderContainer to MyVboRenderList.");
+                //renderContainerField.set(Minecraft.getMinecraft().renderGlobal, new MyVboRenderList());
+                //Saurus3D.LOGGER.info("Set renderContainer to MyVboRenderList.");
             }
             catch (Exception ignored) { }
         }

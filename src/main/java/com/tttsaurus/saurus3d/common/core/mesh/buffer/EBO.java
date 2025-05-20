@@ -50,7 +50,7 @@ public class EBO extends GLDisposable
         if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
-        eboSize = GL15.glGetBufferParameteri(eboID.id, GL15.GL_BUFFER_SIZE);
+        eboSize = GL15.glGetBufferParameteri(GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE);
         indicesLength = eboSize / 4;
         if (eboSize % 4 != 0)
             throw new GLIllegalStateException("Size must be a multiple of 4 because they are indices.");

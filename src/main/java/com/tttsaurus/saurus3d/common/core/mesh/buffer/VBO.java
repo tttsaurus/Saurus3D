@@ -47,7 +47,7 @@ public class VBO extends GLDisposable
         int prevVbo = 0;
         if (autoRebindToOldVbo) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
-        vboSize = GL15.glGetBufferParameteri(vboID.id, GL15.GL_BUFFER_SIZE);
+        vboSize = GL15.glGetBufferParameteri(GL15.GL_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE);
         if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
 
         GLResourceManager.addDisposable(this);

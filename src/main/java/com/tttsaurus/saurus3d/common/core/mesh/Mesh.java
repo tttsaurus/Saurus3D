@@ -13,14 +13,14 @@ import java.util.List;
 
 public class Mesh extends GLDisposable
 {
-    private boolean setup;
+    private boolean setup = false;
 
     private final AttributeLayout attributeLayout;
     private final EBO ebo;
     private final List<VBO> vbos = new ArrayList<>();
 
     private int vaoID;
-    private int eboIndexOffset;
+    private int eboIndexOffset = 0;
 
     private boolean instancing;
     private int instancePrimCount;
@@ -47,9 +47,6 @@ public class Mesh extends GLDisposable
         this.attributeLayout = attributeLayout;
         this.ebo = ebo;
         this.vbos.addAll(Arrays.asList(vbos));
-
-        setup = false;
-        eboIndexOffset = 0;
     }
 
     public void setup()
@@ -78,14 +75,17 @@ public class Mesh extends GLDisposable
             throw new GLIllegalStateException("Mesh must be set up first.");
 
         int prevVao = GL11.glGetInteger(GL30.GL_VERTEX_ARRAY_BINDING);
+        int prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
         GL30.glBindVertexArray(vaoID);
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo.getEboID().getId());
 
         if (instancing)
             GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, ebo.getIndicesLength(), GL11.GL_UNSIGNED_INT, (long) eboIndexOffset * Integer.BYTES, instancePrimCount);
         else
             GL11.glDrawElements(GL11.GL_TRIANGLES, ebo.getIndicesLength(), GL11.GL_UNSIGNED_INT, (long) eboIndexOffset * Integer.BYTES);
 
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
         GL30.glBindVertexArray(prevVao);
     }
 

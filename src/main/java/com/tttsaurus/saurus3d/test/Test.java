@@ -96,14 +96,14 @@ public final class Test
     static MethodHandle handle2 = null;
 
     static Mesh mesh = null;
+    static ShaderProgram shaderProgram = null;
     @SubscribeEvent
     public static void onRenderWorldLast(RenderWorldLastEvent event)
     {
         storeCommonGlStates();
 
-        if (flag)
+        if (mesh == null)
         {
-            flag = false;
             ObjModelLoader loader = new ObjModelLoader();
             mesh = loader.load("saurus3d:obj/test/model.obj");
 
@@ -126,17 +126,19 @@ public final class Test
                 Minecraft.getMinecraft().player.sendChatMessage("finish");
 
             mesh.setup();
+
+            Shader vertex = ShaderManager.loadShader("saurus3d:obj/test/shader_vertex.glsl", Shader.ShaderType.VERTEX);
+            Shader frag = ShaderManager.loadShader("saurus3d:obj/test/shader_frag.glsl", Shader.ShaderType.FRAGMENT);
+
+            shaderProgram = new ShaderProgram(vertex, frag);
+            shaderProgram.setup();
+
+            Saurus3D.LOGGER.info(shaderProgram.getSetupDebugReport());
         }
 
         if (mesh != null)
         {
             GL11.glPushMatrix();
-
-            Shader vertex = ShaderManager.loadShader("saurus3d:obj/test/shader_vertex.glsl", Shader.ShaderType.VERTEX);
-            Shader frag = ShaderManager.loadShader("saurus3d:obj/test/shader_frag.glsl", Shader.ShaderType.FRAGMENT);
-
-            ShaderProgram shaderProgram = new ShaderProgram(vertex, frag);
-            shaderProgram.setup();
 
             Matrix4f transform = new Matrix4f();
             transform.setIdentity();
@@ -204,23 +206,13 @@ public final class Test
             GlStateManager.enableDepth();
             GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
-            if (flag2)
-            {
-                flag2 = false;
-                Saurus3D.LOGGER.info(shaderProgram.getSetupDebugReport());
-            }
-
             mesh.render();
 
             shaderProgram.unuse();
-            shaderProgram.dispose();
 
             GL11.glPopMatrix();
         }
 
         restoreCommonGlStates();
     }
-
-    static boolean flag = true;
-    static boolean flag2 = true;
 }

@@ -4,6 +4,8 @@ import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.function.Action;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
+import com.tttsaurus.saurus3d.test.Test;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
@@ -33,6 +35,6 @@ public class ClientProxy extends CommonProxy
         });
         //</editor-fold>
 
-        //MinecraftForge.EVENT_BUS.register(Test.class);
+        MinecraftForge.EVENT_BUS.register(Test.class);
     }
 }

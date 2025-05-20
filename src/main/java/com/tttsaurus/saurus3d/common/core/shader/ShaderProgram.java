@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ShaderProgram extends GLDisposable
 {
-    private boolean setup;
+    private boolean setup = false;
     private boolean isUsing;
     private int prevProgramID = 0;
     private int programID;
