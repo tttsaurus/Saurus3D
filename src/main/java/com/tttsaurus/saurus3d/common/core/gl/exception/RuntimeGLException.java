@@ -10,7 +10,7 @@ public class RuntimeGLException extends RuntimeException
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append("Saurus3D Runtime GL Exception [").append(this.getClass().getSimpleName()).append("]: ");
+        builder.append("Runtime GL Related Exception - ").append(this.getClass().getSimpleName()).append(": ");
         builder.append(message).append(" Stack Trace:\n");
 
         for (StackTraceElement stackTraceElement : this.getStackTrace())

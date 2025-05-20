@@ -3,7 +3,6 @@ package com.tttsaurus.saurus3d.common.core.mesh.attribute;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
-
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;

@@ -1,5 +1,6 @@
 package com.tttsaurus.saurus3d.common.core.shader;
 
+import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLDisposable;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.common.core.reflection.TypeUtils;
@@ -16,7 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ShaderProgram extends GLDisposable
 {
     private boolean setup;
-    private int prevProgramID;
+    private boolean isUsing;
+    private int prevProgramID = 0;
     private int programID;
     private final Map<UniformField, Integer> uniformFields = new ConcurrentHashMap<>();
     private final List<Integer> shaderIDs = new ArrayList<>();
@@ -78,6 +80,10 @@ public class ShaderProgram extends GLDisposable
 
     public ShaderProgram(Shader... shaders)
     {
+        for (Shader shader: shaders)
+            if (!shader.getSetup())
+                throw new GLIllegalStateException("All shaders must be compiled first.");
+
         this.shaders.addAll(Arrays.asList(shaders));
     }
 
@@ -202,6 +208,11 @@ public class ShaderProgram extends GLDisposable
     // call after use()
     public void setUniform(String fieldName, Object... values)
     {
+        if (!setup)
+            throw new GLIllegalStateException("Shader program must be set up first.");
+        if (!isUsing)
+            throw new GLIllegalStateException("Cannot set uniforms while not using the shader program.");
+
         UniformField field = null;
         int loc = 0;
         for (Map.Entry<UniformField, Integer> entry: uniformFields.entrySet())
@@ -306,11 +317,23 @@ public class ShaderProgram extends GLDisposable
 
     public void use()
     {
+        if (!setup)
+            throw new GLIllegalStateException("Shader program must be set up first.");
+        if (isUsing)
+            throw new GLIllegalStateException("Cannot use again.");
+
+        isUsing = true;
         prevProgramID = GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM);
         GL20.glUseProgram(programID);
     }
     public void unuse()
     {
+        if (!setup)
+            throw new GLIllegalStateException("Shader program must be set up first.");
+        if (!isUsing)
+            throw new GLIllegalStateException("Cannot unuse while not using it.");
+
+        isUsing = false;
         GL20.glUseProgram(prevProgramID);
     }
 
