@@ -1,6 +1,7 @@
 package com.tttsaurus.saurus3d.mixin.early;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IBufferBuilderExtra;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IRenderChunkExtra;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IVertexBufferExtra;
@@ -81,8 +82,10 @@ public class ChunkRenderDispatcherMixin
 
         //mesh.getEbo().directUpload(indices);
 
+        eboByteBuffer.position(0);
+        eboByteBuffer.clear();
         IntBuffer intView = eboByteBuffer.asIntBuffer();
-        intView.position(0);
+        intView.clear();
         intView.put(indices);
         eboByteBuffer.position(0);
         eboByteBuffer.limit(indices.length * 4);
