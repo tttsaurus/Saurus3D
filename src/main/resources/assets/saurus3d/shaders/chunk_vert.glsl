@@ -26,7 +26,7 @@ uniform mat4 projection;
 
 void main(void)
 {
-    //gl_Position = projection * modelView * vec4(position - camPos + offset, 1.0);
+    gl_Position = projection * modelView * vec4(position - camPos + offset, 1.0);
     TexCoord0 = texCoord0;
     TexCoord1 = texCoord1;
     Color = color;

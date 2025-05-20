@@ -34,6 +34,9 @@ public class Mesh extends GLDisposable
     protected int getEboIndexOffset() { return eboIndexOffset; }
     protected void setEboIndexOffset(int offset) { eboIndexOffset = offset; }
 
+    public EBO getEbo() { return ebo; }
+    public List<VBO> getVbos() { return vbos; }
+
     public Mesh(AttributeLayout attributeLayout, EBO ebo, VBO... vbos)
     {
         if (vbos.length != attributeLayout.getStrideCount())

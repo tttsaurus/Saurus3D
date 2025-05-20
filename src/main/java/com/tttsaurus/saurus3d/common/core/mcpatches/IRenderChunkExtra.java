@@ -1,8 +1,11 @@
 package com.tttsaurus.saurus3d.common.core.mcpatches;
 
-import net.minecraft.client.renderer.BufferBuilder;
+import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
+import java.nio.ByteBuffer;
 
 public interface IRenderChunkExtra
 {
-    BufferBuilder[] getBufferBuilders();
+    ByteBuffer[] getVboByteBuffers();
+    ByteBuffer[] getEboByteBuffers();
+    Mesh[] getMeshes();
 }

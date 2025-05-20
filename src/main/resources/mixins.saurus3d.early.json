@@ -9,7 +9,8 @@
     "BufferBuilderMixin",
     "ChunkRenderDispatcherMixin",
     "MinecraftMixin",
-    "RenderChunkMixin"
+    "RenderChunkMixin",
+    "VertexBufferMixin"
   ],
   "server": []
 }

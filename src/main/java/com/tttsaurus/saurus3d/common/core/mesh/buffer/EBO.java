@@ -84,12 +84,13 @@ public class EBO extends GLDisposable
         byteBuffer.position(0);
 
         directUpload(byteBuffer);
-        indicesLength = arr.length;
     }
-    private void directUpload(ByteBuffer byteBuffer)
+    public void directUpload(ByteBuffer byteBuffer)
     {
         if (eboID == null)
             throw new GLIllegalBufferIDException("Must set an EBO ID first.");
+        if (byteBuffer.remaining() % 4 != 0)
+            throw new GLIllegalStateException("Size, which is byteBuffer.remaining(), must be a multiple of 4 because they are indices.");
 
         int prevEbo = 0;
         if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
@@ -98,6 +99,7 @@ public class EBO extends GLDisposable
         if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
 
         eboSize = byteBuffer.remaining();
+        indicesLength = eboSize / 4;
     }
     public void allocNewGpuMem(int size, BufferUploadHint hint)
     {
