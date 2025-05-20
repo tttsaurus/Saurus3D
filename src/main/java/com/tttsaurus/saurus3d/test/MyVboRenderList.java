@@ -98,12 +98,12 @@ public class MyVboRenderList extends ChunkRenderContainer
                 int[] indices = new int[quadCount * 6];
                 for (int i = 0; i < quadCount; i++)
                 {
-                    indices[i * 4] = i * 4;
-                    indices[i * 4 + 1] = i * 4 + 1;
-                    indices[i * 4 + 2] = i * 4 + 2;
-                    indices[i * 4] = i * 4;
-                    indices[i * 4 + 2] = i * 4 + 2;
-                    indices[i * 4 + 3] = i * 4 + 3;
+                    indices[i * 6] = i * 4;
+                    indices[i * 6 + 1] = i * 4 + 1;
+                    indices[i * 6 + 2] = i * 4 + 2;
+                    indices[i * 6 + 3] = i * 4;
+                    indices[i * 6 + 4] = i * 4 + 2;
+                    indices[i * 6 + 5] = i * 4 + 3;
                 }
 
                 renderChunkExtra.getMeshes()[layer.ordinal()].getEbo().directUpload(indices);
