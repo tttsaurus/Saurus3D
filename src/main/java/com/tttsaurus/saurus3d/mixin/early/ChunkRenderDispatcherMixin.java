@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 
 @Mixin(ChunkRenderDispatcher.class)
 public class ChunkRenderDispatcherMixin
@@ -78,6 +79,14 @@ public class ChunkRenderDispatcherMixin
             indices[i * 6 + 5] = i * 4 + 3;
         }
 
-        mesh.getEbo().directUpload(indices);
+        //mesh.getEbo().directUpload(indices);
+
+        IntBuffer intView = eboByteBuffer.asIntBuffer();
+        intView.position(0);
+        intView.put(indices);
+        eboByteBuffer.position(0);
+        eboByteBuffer.limit(indices.length * 4);
+
+        mesh.getEbo().directUpload(eboByteBuffer);
     }
 }
