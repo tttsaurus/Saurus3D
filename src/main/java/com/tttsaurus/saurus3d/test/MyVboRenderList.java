@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 
 public class MyVboRenderList extends ChunkRenderContainer
 {
-    private static final AttributeLayout BLOCK_ATTRIBUTE_LAYOUT = new AttributeLayout();
+    public static final AttributeLayout BLOCK_ATTRIBUTE_LAYOUT = new AttributeLayout();
     static
     {
         BLOCK_ATTRIBUTE_LAYOUT.push(new Stride(28)
@@ -35,7 +35,6 @@ public class MyVboRenderList extends ChunkRenderContainer
 
     private ShaderProgram program = null;
 
-    // <https://github.com/Laike-Endaril/Luminous/blob/1.12.2/src/main/java/com/fantasticsource/luminous/shaders/VboRenderListEdit.java>
     @Override
     public void renderChunkLayer(BlockRenderLayer layer)
     {
@@ -61,52 +60,7 @@ public class MyVboRenderList extends ChunkRenderContainer
             for (RenderChunk renderChunk : renderChunks)
             {
                 IRenderChunkExtra renderChunkExtra = ((IRenderChunkExtra)renderChunk);
-
-                Mesh mesh;
-                ByteBuffer vboByteBuffer = renderChunkExtra.getVboByteBuffers()[layer.ordinal()];
-                //ByteBuffer eboByteBuffer;
-
-                // init mesh and ebo byte buffer
-                if (renderChunkExtra.getMeshes()[layer.ordinal()] == null)
-                {
-                    int vboID = ((IVertexBufferExtra)renderChunk.getVertexBufferByLayer(layer.ordinal())).getBufferID();
-                    VBO vbo = new VBO();
-                    vbo.setAutoRebindToOldVbo(true);
-                    vbo.setVboID(new BufferID(vboID, BufferType.VBO));
-
-                    // sync
-                    if (vbo.getVboSize() != vboByteBuffer.remaining())
-                        vbo.directUpload(vboByteBuffer);
-
-                    // todo: move to uploadChunk
-                    //renderChunkExtra.getEboByteBuffers()[layer.ordinal()] = ByteBuffer.allocateDirect(449390 * 4).order(ByteOrder.nativeOrder());
-                    EBO ebo = new EBO();
-                    ebo.setAutoRebindToOldEbo(true);
-                    ebo.setEboID(EBO.genEboID());
-
-                    mesh = new Mesh(BLOCK_ATTRIBUTE_LAYOUT, ebo, vbo);
-                    mesh.setup();
-
-                    renderChunkExtra.getMeshes()[layer.ordinal()] = mesh;
-                }
-                mesh = renderChunkExtra.getMeshes()[layer.ordinal()];
-                //eboByteBuffer = renderChunkExtra.getEboByteBuffers()[layer.ordinal()];
-
-                int vertexCount = vboByteBuffer.remaining() / 28;
-                int quadCount = vertexCount / 4;
-
-                int[] indices = new int[quadCount * 6];
-                for (int i = 0; i < quadCount; i++)
-                {
-                    indices[i * 6] = i * 4;
-                    indices[i * 6 + 1] = i * 4 + 1;
-                    indices[i * 6 + 2] = i * 4 + 2;
-                    indices[i * 6 + 3] = i * 4;
-                    indices[i * 6 + 4] = i * 4 + 2;
-                    indices[i * 6 + 5] = i * 4 + 3;
-                }
-
-                renderChunkExtra.getMeshes()[layer.ordinal()].getEbo().directUpload(indices);
+                Mesh mesh = renderChunkExtra.getMeshes()[layer.ordinal()];
 
                 program.use();
                 program.setUniform("offset", renderChunk.getPosition().getX(), renderChunk.getPosition().getY(), renderChunk.getPosition().getZ());

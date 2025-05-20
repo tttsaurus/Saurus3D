@@ -36,6 +36,23 @@ public class EBO extends GLDisposable
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
     }
 
+    public void updateSize()
+    {
+        if (eboID == null)
+            throw new GLIllegalBufferIDException("Must set an EBO ID first.");
+
+        int prevEbo = 0;
+        if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
+        eboSize = GL15.glGetBufferParameteri(GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE);
+        indicesLength = eboSize / 4;
+        if (eboSize % 4 != 0)
+            throw new GLIllegalStateException("Size must be a multiple of 4 because they are indices.");
+
+        if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
+    }
+
     //<editor-fold desc="id">
     public void setEboID(BufferID eboID)
     {
@@ -78,7 +95,6 @@ public class EBO extends GLDisposable
 
         IntBuffer intView = byteBuffer.asIntBuffer();
         intView.put(arr);
-        intView.flip();
 
         byteBuffer.limit(intView.limit() * Integer.BYTES);
         byteBuffer.position(0);

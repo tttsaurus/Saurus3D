@@ -34,6 +34,18 @@ public class VBO extends GLDisposable
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
     }
 
+    public void updateSize()
+    {
+        if (vboID == null)
+            throw new GLIllegalBufferIDException("Must set a VBO ID first.");
+
+        int prevVbo = 0;
+        if (autoRebindToOldVbo) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+        vboSize = GL15.glGetBufferParameteri(GL15.GL_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE);
+        if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+    }
+
     //<editor-fold desc="id">
     public void setVboID(BufferID vboID)
     {
@@ -71,7 +83,6 @@ public class VBO extends GLDisposable
 
         FloatBuffer floatView = byteBuffer.asFloatBuffer();
         floatView.put(arr);
-        floatView.flip();
 
         byteBuffer.limit(floatView.limit() * Float.BYTES);
         byteBuffer.position(0);
