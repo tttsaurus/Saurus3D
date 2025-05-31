@@ -1,15 +1,14 @@
 package com.tttsaurus.saurus3d.mixin.early;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IBufferBuilderExtra;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IRenderChunkExtra;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IVertexBufferExtra;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.BufferID;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.BufferType;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.EBO;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.VBO;
+import com.tttsaurus.saurus3d.common.core.buffer.BufferID;
+import com.tttsaurus.saurus3d.common.core.buffer.BufferType;
+import com.tttsaurus.saurus3d.common.core.buffer.EBO;
+import com.tttsaurus.saurus3d.common.core.buffer.VBO;
 import com.tttsaurus.saurus3d.test.MyVboRenderList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -79,8 +78,6 @@ public class ChunkRenderDispatcherMixin
             indices[i * 6 + 4] = i * 4 + 2;
             indices[i * 6 + 5] = i * 4 + 3;
         }
-
-        //mesh.getEbo().directUpload(indices);
 
         eboByteBuffer.position(0);
         eboByteBuffer.clear();

@@ -3,7 +3,7 @@ package com.tttsaurus.saurus3d.mixin.early;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IRenderChunkExtra;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.VBO;
+import com.tttsaurus.saurus3d.common.core.buffer.VBO;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.util.BlockRenderLayer;
 import org.spongepowered.asm.mixin.Mixin;

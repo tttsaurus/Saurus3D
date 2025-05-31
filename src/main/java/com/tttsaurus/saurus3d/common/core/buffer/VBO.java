@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.mesh.buffer;
+package com.tttsaurus.saurus3d.common.core.buffer;
 
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLMapBufferException;

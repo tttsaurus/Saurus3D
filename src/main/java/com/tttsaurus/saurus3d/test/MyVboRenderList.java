@@ -3,23 +3,17 @@ package com.tttsaurus.saurus3d.test;
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.RenderUtils;
 import com.tttsaurus.saurus3d.common.core.mcpatches.IRenderChunkExtra;
-import com.tttsaurus.saurus3d.common.core.mcpatches.IVertexBufferExtra;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
 import com.tttsaurus.saurus3d.common.core.mesh.attribute.AttributeLayout;
 import com.tttsaurus.saurus3d.common.core.mesh.attribute.Slot;
 import com.tttsaurus.saurus3d.common.core.mesh.attribute.Stride;
 import com.tttsaurus.saurus3d.common.core.mesh.attribute.Type;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.BufferID;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.BufferType;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.EBO;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.VBO;
 import com.tttsaurus.saurus3d.common.core.shader.Shader;
 import com.tttsaurus.saurus3d.common.core.shader.ShaderManager;
 import com.tttsaurus.saurus3d.common.core.shader.ShaderProgram;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.util.BlockRenderLayer;
-import java.nio.ByteBuffer;
 
 public class MyVboRenderList extends ChunkRenderContainer
 {

@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.mesh.buffer;
+package com.tttsaurus.saurus3d.common.core.buffer;
 
 public class BufferID
 {

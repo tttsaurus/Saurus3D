@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.common.core.mesh.attribute;
 
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
-import com.tttsaurus.saurus3d.common.core.mesh.buffer.VBO;
+import com.tttsaurus.saurus3d.common.core.buffer.VBO;
 import org.lwjgl.opengl.*;
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
