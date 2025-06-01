@@ -6,7 +6,6 @@ import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.RenderUtils;
 import com.tttsaurus.saurus3d.common.core.function.Action;
 import com.tttsaurus.saurus3d.common.core.gl.debug.KHRDebugManager;
-import com.tttsaurus.saurus3d.common.core.gl.debug.DebugMessageFilter;
 import com.tttsaurus.saurus3d.common.core.gl.feature.GLFeatureManager;
 import com.tttsaurus.saurus3d.common.core.gl.feature.IGLFeature;
 import com.tttsaurus.saurus3d.common.core.gl.feature.Saurus3DGLFeature;
@@ -15,9 +14,11 @@ import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
 import com.tttsaurus.saurus3d.config.ConfigFileHelper;
 import com.tttsaurus.saurus3d.config.Saurus3DGLDebugConfig;
 import com.tttsaurus.saurus3d.config.Saurus3DGLFeatureConfig;
+import com.tttsaurus.saurus3d.mcpatches.api.ITextureMapExtra;
 import com.tttsaurus.saurus3d.test.MyVboRenderList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextAttribs;
@@ -25,6 +26,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.PixelFormat;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -207,5 +209,16 @@ public class MinecraftMixin
             }
             catch (Exception ignored) { }
         }
+    }
+
+    @Shadow
+    private TextureMap textureMapBlocks;
+
+    // just set texture map blocks
+    @Inject(method = "init", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;textureMapBlocks:Lnet/minecraft/client/renderer/texture/TextureMap;", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+    private void afterSetTextureMapBlocks(CallbackInfo ci)
+    {
+        ((ITextureMapExtra)textureMapBlocks).setEnableBatchTexUpload(true);
+        Saurus3D.LOGGER.info("Enable texture map batch tex upload.");
     }
 }

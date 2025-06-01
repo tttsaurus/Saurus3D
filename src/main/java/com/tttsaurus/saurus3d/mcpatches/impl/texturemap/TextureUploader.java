@@ -33,6 +33,9 @@ public final class TextureUploader
             List<int[]> datas = entry.getValue();
             List<TexRect> rects = mipmapRect.get(level);
 
+            // todo: delete test
+            assert RectMergeAlgorithm.isPerfectRect(rects);
+
 
         }
     }
