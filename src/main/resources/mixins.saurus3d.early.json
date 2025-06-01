@@ -10,6 +10,8 @@
     "ChunkRenderDispatcherMixin",
     "MinecraftMixin",
     "RenderChunkMixin",
+    "StitcherHolderMixin",
+    "TextureUtilMixin",
     "VertexBufferMixin"
   ],
   "server": []

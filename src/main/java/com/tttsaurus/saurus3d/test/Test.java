@@ -10,6 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.BufferUtils;
@@ -26,6 +28,30 @@ import java.nio.IntBuffer;
 
 public final class Test
 {
+    @SubscribeEvent
+    public static void blockTextureTest(RenderGameOverlayEvent.Post event)
+    {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.VIGNETTE)
+        {
+            Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+            GlStateManager.glBegin(GL11.GL_QUADS);
+
+            GlStateManager.glTexCoord2f(0, 0);
+            GlStateManager.glVertex3f(0, 0, 0);
+
+            GlStateManager.glTexCoord2f(0, 1);
+            GlStateManager.glVertex3f(0, 300, 0);
+
+            GlStateManager.glTexCoord2f(1, 1);
+            GlStateManager.glVertex3f(300, 300, 0);
+
+            GlStateManager.glTexCoord2f(1, 0);
+            GlStateManager.glVertex3f(300, 0, 0);
+
+            GlStateManager.glEnd();
+        }
+    }
+
 
     //<editor-fold desc="gl states">
     private static int textureID = 0;
