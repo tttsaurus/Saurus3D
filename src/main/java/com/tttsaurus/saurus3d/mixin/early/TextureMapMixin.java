@@ -2,6 +2,7 @@ package com.tttsaurus.saurus3d.mixin.early;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
 import com.tttsaurus.saurus3d.mcpatches.api.ITextureAtlasSpriteExtra;
 import com.tttsaurus.saurus3d.mcpatches.api.ITextureMapExtra;
 import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TexRect;
@@ -73,18 +74,18 @@ public class TextureMapMixin implements ITextureMapExtra
                 }
             }
 
-            // todo: delete test
             int count = 0;
             for (List<TextureAtlasSprite> list: saurus3D$mergedAnimatedSprites.values())
                 count += list.size();
-            assert count == listAnimatedSprites.size();
+            if (count != listAnimatedSprites.size())
+                throw new GLIllegalStateException("TextureMap post-texture-stitching merging algorithm ran into a problem.");
         }
     }
 
     @WrapMethod(method = "updateAnimations")
     public void updateAnimations(Operation<Void> original)
     {
-        if (saurus3D$mergedAnimatedSprites == null)
+        if (!saurus3D$enableBatchTexUpload || saurus3D$mergedAnimatedSprites == null)
         {
             original.call();
             return;
@@ -100,6 +101,7 @@ public class TextureMapMixin implements ITextureMapExtra
             TexRect rect = entry.getKey();
             List<TextureAtlasSprite> sprites = entry.getValue();
 
+            boolean abort = false;
             TextureUploader.reset();
             for (TextureAtlasSprite sprite: sprites)
             {
@@ -107,12 +109,25 @@ public class TextureMapMixin implements ITextureMapExtra
 
                 TexUpdatePlan plan = spriteExtra.updateAnimation_V2();
                 for (int i = 0; i < plan.data.length; i++)
-                    if (!((plan.rect.width >> i <= 0) || (plan.rect.height >> i <= 0)))
+                {
+                    if ((plan.rect.width >> i <= 0) || (plan.rect.height >> i <= 0))
+                        abort = true;
+                    else
                         TextureUploader.planTexUpload(i, plan.data[i], plan.rect);
+                }
+
+                if (abort) break;
 
                 spriteExtra.setUpdated(true);
             }
-            TextureUploader.batchUpload(rect);
+
+            if (abort)
+            {
+                for (TextureAtlasSprite sprite: sprites)
+                    ((ITextureAtlasSpriteExtra)sprite).setUpdated(false);
+            }
+            else
+                TextureUploader.batchUpload(rect);
         }
 
         for (TextureAtlasSprite sprite: this.listAnimatedSprites)
