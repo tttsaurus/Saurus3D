@@ -14,4 +14,9 @@ public class Rect
         this.width = width;
         this.height = height;
     }
+
+    public boolean contains(Rect r)
+    {
+        return r.x >= x && r.x + r.width <= x + width && r.y >= y && r.y + r.height <= y + height;
+    }
 }
