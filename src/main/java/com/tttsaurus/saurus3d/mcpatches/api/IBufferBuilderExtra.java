@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.mcpatches;
+package com.tttsaurus.saurus3d.mcpatches.api;
 
 import java.nio.ByteBuffer;
 

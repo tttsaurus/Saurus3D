@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.mcpatches;
+package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
 import net.minecraft.util.Tuple;
 import java.util.ArrayList;
@@ -6,10 +6,10 @@ import java.util.List;
 
 public final class RectMergeAlgorithm
 {
-    private static Tuple<Integer, Integer> getMaxXY(List<Rect> rects)
+    private static Tuple<Integer, Integer> getMaxXY(List<TexRect> texRects)
     {
         int maxX = 0, maxY = 0;
-        for (Rect r: rects)
+        for (TexRect r: texRects)
         {
             if (r.x + r.width > maxX) maxX = r.x + r.width;
             if (r.y + r.height > maxY) maxY = r.y + r.height;
@@ -17,10 +17,10 @@ public final class RectMergeAlgorithm
         return new Tuple<>(maxX, maxY);
     }
 
-    private static boolean[][] genBooleanGrid(List<Rect> rects, int maxX, int maxY)
+    private static boolean[][] genBooleanGrid(List<TexRect> texRects, int maxX, int maxY)
     {
         boolean[][] grid = new boolean[maxY][maxX];
-        for (Rect r: rects)
+        for (TexRect r: texRects)
         {
             for (int y = r.y; y < r.y + r.height; y++)
                 for (int x = r.x; x < r.x + r.width; x++)
@@ -29,15 +29,15 @@ public final class RectMergeAlgorithm
         return grid;
     }
 
-    public static List<Rect> mergeRects(List<Rect> rects)
+    public static List<TexRect> mergeRects(List<TexRect> texRects)
     {
-        List<Rect> result = new ArrayList<>();
+        List<TexRect> result = new ArrayList<>();
 
-        Tuple<Integer, Integer> xy = getMaxXY(rects);
+        Tuple<Integer, Integer> xy = getMaxXY(texRects);
         int maxX = xy.getFirst();
         int maxY = xy.getSecond();
 
-        boolean[][] grid = genBooleanGrid(rects, maxX, maxY);
+        boolean[][] grid = genBooleanGrid(texRects, maxX, maxY);
         boolean[][] visited = new boolean[maxY][maxX];
 
         for (int y = 0; y < maxY; y++)
@@ -69,7 +69,7 @@ public final class RectMergeAlgorithm
                         for (int dx = 0; dx < width; dx++)
                             visited[y + dy][x + dx] = true;
 
-                    result.add(new Rect(x, y, width, height));
+                    result.add(new TexRect(x, y, width, height));
                 }
             }
         }

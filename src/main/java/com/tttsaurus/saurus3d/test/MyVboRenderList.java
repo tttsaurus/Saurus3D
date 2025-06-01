@@ -2,7 +2,7 @@ package com.tttsaurus.saurus3d.test;
 
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.RenderUtils;
-import com.tttsaurus.saurus3d.common.core.mcpatches.IRenderChunkExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.IRenderChunkExtra;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
 import com.tttsaurus.saurus3d.common.core.mesh.attribute.AttributeLayout;
 import com.tttsaurus.saurus3d.common.core.mesh.attribute.Slot;

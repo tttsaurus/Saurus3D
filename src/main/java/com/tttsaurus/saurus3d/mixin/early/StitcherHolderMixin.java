@@ -1,6 +1,6 @@
 package com.tttsaurus.saurus3d.mixin.early;
 
-import com.tttsaurus.saurus3d.common.core.mcpatches.IStitcherHolderExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.IStitcherHolderExtra;
 import net.minecraft.client.renderer.texture.Stitcher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.spongepowered.asm.mixin.Final;

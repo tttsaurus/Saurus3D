@@ -2,9 +2,9 @@ package com.tttsaurus.saurus3d.mixin.early;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.tttsaurus.saurus3d.common.core.mcpatches.ITextureAtlasSpriteExtra;
-import com.tttsaurus.saurus3d.common.core.mcpatches.Rect;
-import com.tttsaurus.saurus3d.common.core.mcpatches.RectMergeAlgorithm;
+import com.tttsaurus.saurus3d.mcpatches.api.ITextureAtlasSpriteExtra;
+import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TexRect;
+import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.RectMergeAlgorithm;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.Stitcher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -26,7 +26,7 @@ import java.util.Map;
 public class TextureMapMixin
 {
     @Unique
-    private Map<Rect, List<TextureAtlasSprite>> saurus3D$mergedAnimatedSprites;
+    private Map<TexRect, List<TextureAtlasSprite>> saurus3D$mergedAnimatedSprites;
 
     @Shadow
     @Final
@@ -35,15 +35,15 @@ public class TextureMapMixin
     @Inject(method = "finishLoading", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/ForgeHooksClient;onTextureStitchedPost(Lnet/minecraft/client/renderer/texture/TextureMap;)V", shift = At.Shift.AFTER), remap = false)
     private void afterFinishLoading(Stitcher stitcher, ProgressManager.ProgressBar bar, int j, int k, CallbackInfo ci)
     {
-        List<Rect> rects = new ArrayList<>();
+        List<TexRect> texRects = new ArrayList<>();
         for (TextureAtlasSprite sprite: listAnimatedSprites)
-            rects.add(((ITextureAtlasSpriteExtra)sprite).getRect());
+            texRects.add(((ITextureAtlasSpriteExtra)sprite).getRect());
 
-        List<Rect> result = RectMergeAlgorithm.mergeRects(rects);
+        List<TexRect> result = RectMergeAlgorithm.mergeRects(texRects);
         if (saurus3D$mergedAnimatedSprites == null)
         {
             saurus3D$mergedAnimatedSprites = new HashMap<>();
-            for (Rect r: result)
+            for (TexRect r: result)
             {
                 List<TextureAtlasSprite> sprites = new ArrayList<>();
                 saurus3D$mergedAnimatedSprites.put(r, sprites);
@@ -66,21 +66,21 @@ public class TextureMapMixin
         GlStateManager.bindTexture(((TextureMap)(Object)this).getGlTextureId());
 
         for (TextureAtlasSprite sprite: this.listAnimatedSprites)
-            ((ITextureAtlasSpriteExtra)sprite).setUploaded(false);
+            ((ITextureAtlasSpriteExtra)sprite).setUpdated(false);
 
-        for (Map.Entry<Rect, List<TextureAtlasSprite>> entry: saurus3D$mergedAnimatedSprites.entrySet())
+        for (Map.Entry<TexRect, List<TextureAtlasSprite>> entry: saurus3D$mergedAnimatedSprites.entrySet())
         {
-            Rect rect = entry.getKey();
+            TexRect texRect = entry.getKey();
             List<TextureAtlasSprite> sprites = entry.getValue();
 
             // batch upload
 
             for (TextureAtlasSprite sprite: sprites)
-                ((ITextureAtlasSpriteExtra)sprite).setUploaded(true);
+                ((ITextureAtlasSpriteExtra)sprite).setUpdated(true);
         }
 
         for (TextureAtlasSprite sprite: this.listAnimatedSprites)
-            if (!((ITextureAtlasSpriteExtra)sprite).uploaded())
+            if (!((ITextureAtlasSpriteExtra)sprite).isUpdated())
                 sprite.updateAnimation();
     }
 }

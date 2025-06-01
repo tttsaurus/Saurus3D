@@ -1,13 +1,13 @@
-package com.tttsaurus.saurus3d.common.core.mcpatches;
+package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
-public class Rect
+public class TexRect
 {
     public int x;
     public int y;
     public int width;
     public int height;
 
-    public Rect(int x, int y, int width, int height)
+    public TexRect(int x, int y, int width, int height)
     {
         this.x = x;
         this.y = y;
@@ -15,7 +15,7 @@ public class Rect
         this.height = height;
     }
 
-    public boolean contains(Rect r)
+    public boolean contains(TexRect r)
     {
         return r.x >= x && r.x + r.width <= x + width && r.y >= y && r.y + r.height <= y + height;
     }

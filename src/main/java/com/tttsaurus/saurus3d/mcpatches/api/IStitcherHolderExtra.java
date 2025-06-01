@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.mcpatches;
+package com.tttsaurus.saurus3d.mcpatches.api;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 

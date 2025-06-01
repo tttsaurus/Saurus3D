@@ -1,6 +1,6 @@
 package com.tttsaurus.saurus3d.mixin.early;
 
-import com.tttsaurus.saurus3d.common.core.mcpatches.IVertexBufferExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.IVertexBufferExtra;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
