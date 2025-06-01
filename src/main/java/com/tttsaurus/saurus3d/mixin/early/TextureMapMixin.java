@@ -5,6 +5,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.tttsaurus.saurus3d.mcpatches.api.ITextureAtlasSpriteExtra;
 import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TexRect;
 import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.RectMergeAlgorithm;
+import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TexUpdatePlan;
+import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TextureUploader;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.Stitcher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -35,11 +37,11 @@ public class TextureMapMixin
     @Inject(method = "finishLoading", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/ForgeHooksClient;onTextureStitchedPost(Lnet/minecraft/client/renderer/texture/TextureMap;)V", shift = At.Shift.AFTER), remap = false)
     private void afterFinishLoading(Stitcher stitcher, ProgressManager.ProgressBar bar, int j, int k, CallbackInfo ci)
     {
-        List<TexRect> texRects = new ArrayList<>();
+        List<TexRect> rects = new ArrayList<>();
         for (TextureAtlasSprite sprite: listAnimatedSprites)
-            texRects.add(((ITextureAtlasSpriteExtra)sprite).getRect());
+            rects.add(((ITextureAtlasSpriteExtra)sprite).getRect());
 
-        List<TexRect> result = RectMergeAlgorithm.mergeRects(texRects);
+        List<TexRect> result = RectMergeAlgorithm.mergeRects(rects);
         if (saurus3D$mergedAnimatedSprites == null)
         {
             saurus3D$mergedAnimatedSprites = new HashMap<>();
@@ -70,13 +72,22 @@ public class TextureMapMixin
 
         for (Map.Entry<TexRect, List<TextureAtlasSprite>> entry: saurus3D$mergedAnimatedSprites.entrySet())
         {
-            TexRect texRect = entry.getKey();
+            TexRect rect = entry.getKey();
             List<TextureAtlasSprite> sprites = entry.getValue();
 
-            // batch upload
-
+            TextureUploader.reset();
             for (TextureAtlasSprite sprite: sprites)
-                ((ITextureAtlasSpriteExtra)sprite).setUpdated(true);
+            {
+                ITextureAtlasSpriteExtra spriteExtra = ((ITextureAtlasSpriteExtra)sprite);
+
+                TexUpdatePlan plan = spriteExtra.updateAnimation_V2();
+                for (int i = 0; i < plan.data.length; i++)
+                    if (!((plan.rect.width >> i <= 0) || (plan.rect.height >> i <= 0)))
+                        TextureUploader.planTexUpload(i, plan.data[i], plan.rect);
+
+                spriteExtra.setUpdated(true);
+            }
+            TextureUploader.batchUpload(rect);
         }
 
         for (TextureAtlasSprite sprite: this.listAnimatedSprites)
