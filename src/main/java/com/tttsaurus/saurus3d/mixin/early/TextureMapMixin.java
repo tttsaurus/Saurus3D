@@ -47,6 +47,9 @@ public class TextureMapMixin implements ITextureMapExtra
     @Unique
     private Map<TexRect, List<TextureAtlasSprite>> saurus3D$mergedAnimatedSprites;
 
+    @Unique
+    private List<TextureUploader> saurus3D$textureUploader;
+
     @Shadow
     @Final
     protected List<TextureAtlasSprite> listAnimatedSprites;
@@ -56,13 +59,14 @@ public class TextureMapMixin implements ITextureMapExtra
     {
         if (saurus3D$enableBatchTexUpload)
         {
-            List<TexRect> rects = new ArrayList<>();
-            for (TextureAtlasSprite sprite: listAnimatedSprites)
-                rects.add(((ITextureAtlasSpriteExtra)sprite).getRect());
-
-            List<TexRect> result = RectMergeAlgorithm.mergeRects(rects);
             if (saurus3D$mergedAnimatedSprites == null)
             {
+                List<TexRect> rects = new ArrayList<>();
+                for (TextureAtlasSprite sprite: listAnimatedSprites)
+                    rects.add(((ITextureAtlasSpriteExtra)sprite).getRect());
+
+                List<TexRect> result = RectMergeAlgorithm.mergeRects(rects);
+
                 saurus3D$mergedAnimatedSprites = new HashMap<>();
                 for (TexRect r: result)
                 {
@@ -72,13 +76,26 @@ public class TextureMapMixin implements ITextureMapExtra
                         if (r.contains(((ITextureAtlasSpriteExtra)sprite).getRect()))
                             sprites.add(sprite);
                 }
-            }
 
-            int count = 0;
-            for (List<TextureAtlasSprite> list: saurus3D$mergedAnimatedSprites.values())
-                count += list.size();
-            if (count != listAnimatedSprites.size())
-                throw new GLIllegalStateException("TextureMap post-texture-stitching merging algorithm ran into a problem.");
+                int count = 0;
+                for (List<TextureAtlasSprite> list: saurus3D$mergedAnimatedSprites.values())
+                    count += list.size();
+                if (count != listAnimatedSprites.size())
+                    throw new GLIllegalStateException("TextureMap post-texture-stitching merging algorithm ran into a problem.");
+
+                saurus3D$textureUploader = new ArrayList<>();
+
+                // 4 extra bytes to avoid potential overflow
+                int bufferSize = 4;
+                for (TexRect rect: saurus3D$mergedAnimatedSprites.keySet())
+                {
+                    bufferSize += rect.width * rect.height * 4;
+                    saurus3D$textureUploader.add(new TextureUploader());
+                }
+
+                for (TextureUploader uploader: saurus3D$textureUploader)
+                    uploader.init(bufferSize, 2);
+            }
         }
     }
 
@@ -96,13 +113,15 @@ public class TextureMapMixin implements ITextureMapExtra
         for (TextureAtlasSprite sprite: this.listAnimatedSprites)
             ((ITextureAtlasSpriteExtra)sprite).setUpdated(false);
 
+        int index = 0;
         for (Map.Entry<TexRect, List<TextureAtlasSprite>> entry: saurus3D$mergedAnimatedSprites.entrySet())
         {
             TexRect rect = entry.getKey();
             List<TextureAtlasSprite> sprites = entry.getValue();
+            TextureUploader uploader = saurus3D$textureUploader.get(index);
 
             boolean abort = false;
-            TextureUploader.reset();
+            uploader.reset();
             for (TextureAtlasSprite sprite: sprites)
             {
                 ITextureAtlasSpriteExtra spriteExtra = ((ITextureAtlasSpriteExtra)sprite);
@@ -113,7 +132,7 @@ public class TextureMapMixin implements ITextureMapExtra
                     if ((plan.rect.width >> i <= 0) || (plan.rect.height >> i <= 0))
                         abort = true;
                     else
-                        TextureUploader.planTexUpload(i, plan.data[i], plan.rect);
+                        uploader.planTexUpload(i, plan.data[i], plan.rect);
                 }
 
                 if (abort) break;
@@ -127,7 +146,9 @@ public class TextureMapMixin implements ITextureMapExtra
                     ((ITextureAtlasSpriteExtra)sprite).setUpdated(false);
             }
             else
-                TextureUploader.batchUpload(rect);
+                uploader.batchUpload(rect);
+
+            index++;
         }
 
         for (TextureAtlasSprite sprite: this.listAnimatedSprites)

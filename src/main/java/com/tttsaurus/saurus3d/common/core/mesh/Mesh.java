@@ -63,7 +63,7 @@ public class Mesh extends GLDisposable
         GL30.glBindVertexArray(vaoID);
 
         attributeLayout.uploadToGL(vbos.toArray(new VBO[0]));
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo.getEboID().getId());
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo.getEboID().getID());
 
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
         GL30.glBindVertexArray(prevVao);
@@ -81,7 +81,7 @@ public class Mesh extends GLDisposable
         int prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
         GL30.glBindVertexArray(vaoID);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo.getEboID().getId());
+        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo.getEboID().getID());
 
         if (instancing)
             GL31.glDrawElementsInstanced(GL11.GL_TRIANGLES, ebo.getIndicesLength(), GL11.GL_UNSIGNED_INT, (long) eboIndexOffset * Integer.BYTES, instancePrimCount);

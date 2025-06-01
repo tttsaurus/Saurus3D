@@ -1,24 +1,76 @@
 package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
-import net.minecraft.client.renderer.GLAllocation;
+import com.tttsaurus.saurus3d.common.core.buffer.BufferUploadHint;
+import com.tttsaurus.saurus3d.common.core.buffer.MapBufferAccessBit;
+import com.tttsaurus.saurus3d.common.core.buffer.PBO;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL21;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.*;
 
-public final class TextureUploader
+public class TextureUploader
 {
-    private final static Map<Integer, List<int[]>> mipmapData = new HashMap<>();
-    private final static Map<Integer, List<TexRect>> mipmapRect = new HashMap<>();
+    private ByteBuffer pboByteBuffer;
+    private final List<List<PBO>> pboLists = new ArrayList<>();
+    private int bufferSize;
+    private int bufferingNum;
+    private int bufferingIndex;
+    private boolean firstCycle;
 
-    public static void reset()
+    private final Map<Integer, List<int[]>> mipmapData = new HashMap<>();
+    private final Map<Integer, List<TexRect>> mipmapRect = new HashMap<>();
+
+    private static void rotateLeftByOne(List<PBO> list)
+    {
+        PBO first = list.get(0);
+        for (int i = 1; i < list.size(); i++)
+            list.set(i - 1, list.get(i));
+        list.set(list.size() - 1, first);
+    }
+
+    private void extendPboList(int level)
+    {
+        int d = (int)Math.pow(2, level);
+        d *= d;
+        int size = bufferSize;
+        if (level != 0) size = size / d + 128;
+
+        List<PBO> list = new ArrayList<>();
+        for (int i = 0; i < bufferingNum; i++)
+        {
+            PBO pbo = new PBO();
+            pbo.setPboID(PBO.genPboID());
+            pbo.allocNewGpuMem(size, BufferUploadHint.STREAM_DRAW);
+            list.add(pbo);
+        }
+        pboLists.add(list);
+        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, 0);
+    }
+
+    public void init(int bufferSize, int bufferingNum)
+    {
+        bufferingIndex = 0;
+        firstCycle = false;
+        this.bufferSize = bufferSize;
+        this.bufferingNum = bufferingNum;
+
+        pboByteBuffer = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
+
+        extendPboList(0);
+    }
+
+    public void reset()
     {
         mipmapData.clear();
         mipmapRect.clear();
     }
 
-    public static void planTexUpload(int level, int[] data, TexRect rect)
+    public void planTexUpload(int level, int[] data, TexRect rect)
     {
         if (!mipmapData.containsKey(level))
             mipmapData.put(level, new ArrayList<>());
@@ -29,9 +81,7 @@ public final class TextureUploader
         mipmapRect.get(level).add(new TexRect(rect.x >> level, rect.y >> level, rect.width >> level, rect.height >> level));
     }
 
-    private static final IntBuffer DATA_BUFFER = GLAllocation.createDirectIntBuffer(4194304);
-
-    public static void batchUpload(TexRect rect)
+    public void batchUpload(TexRect rect)
     {
         boolean mipmap = mipmapData.size() > 1;
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, mipmap ? GL11.GL_NEAREST_MIPMAP_LINEAR : GL11.GL_NEAREST);
@@ -39,6 +89,10 @@ public final class TextureUploader
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 
+        //todo: guarantee level order 0 -> 1 -> 2 ...
+
+        int index = 0;
+        int len = mipmapData.size();
         for (Map.Entry<Integer, List<int[]>> entry: mipmapData.entrySet())
         {
             int level = entry.getKey();
@@ -48,12 +102,41 @@ public final class TextureUploader
 
             int[] mergedData = mergeTexs(bigRect, rects, datas);
 
-            DATA_BUFFER.clear();
-            DATA_BUFFER.put(mergedData);
-            DATA_BUFFER.flip();
+            if (pboLists.size() < len && index > pboLists.size() - 1) extendPboList(level);
+            List<PBO> pbos = pboLists.get(index);
 
-            GlStateManager.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, DATA_BUFFER);
+            PBO pboToUpload;
+            if (!firstCycle)
+            {
+                pboToUpload = pbos.get(bufferingIndex);
+                if (bufferingIndex >= bufferingNum - 1) firstCycle = true;
+            }
+            else
+            {
+                PBO pboToUse = pbos.get(0);
+                GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboToUse.getPboID().getID());
+                GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, 0);
+                rotateLeftByOne(pbos);
+                pboToUpload = pbos.get(bufferingNum - 1);
+            }
+
+            pboByteBuffer.position(0);
+            pboByteBuffer.clear();
+            IntBuffer intView = pboByteBuffer.asIntBuffer();
+            intView.put(mergedData);
+            pboByteBuffer.position(0);
+            pboByteBuffer.limit(mergedData.length * Integer.BYTES);
+
+            pboToUpload.uploadByMappedBuffer(0, pboByteBuffer.remaining(), 0, pboByteBuffer,
+                    MapBufferAccessBit.WRITE_BIT,
+                    MapBufferAccessBit.INVALIDATE_BUFFER_BIT,
+                    MapBufferAccessBit.UNSYNCHRONIZED_BIT);
+
+            index++;
         }
+
+        bufferingIndex++;
+        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, 0);
     }
 
     private static int[] mergeTexs(TexRect bigRect, List<TexRect> rects, List<int[]> datas)
