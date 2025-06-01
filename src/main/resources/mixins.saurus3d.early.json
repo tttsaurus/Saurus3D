@@ -11,6 +11,8 @@
     "MinecraftMixin",
     "RenderChunkMixin",
     "StitcherHolderMixin",
+    "TextureAtlasSpriteMixin",
+    "TextureMapMixin",
     "TextureUtilMixin",
     "VertexBufferMixin"
   ],

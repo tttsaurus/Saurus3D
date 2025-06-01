@@ -60,6 +60,8 @@ public class TextureUtilMixin
             saurus3D$pbo.allocNewGpuMem(saurus3D$maxSubImageSize, BufferUploadHint.STREAM_DRAW);
         }
 
+
+
         saurus3D$pbo.uploadByMappedBuffer(0, saurus3D$pboByteBuffer.remaining(), 0, saurus3D$pboByteBuffer);
 //        saurus3D$pbo.uploadByMappedBuffer(0, saurus3D$pboByteBuffer.remaining(), 0, saurus3D$pboByteBuffer,
 //                MapBufferAccessBit.WRITE_BIT,
