@@ -3,12 +3,14 @@ package com.tttsaurus.saurus3d.mixin.early;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
-import com.tttsaurus.saurus3d.mcpatches.api.ITextureAtlasSpriteExtra;
-import com.tttsaurus.saurus3d.mcpatches.api.ITextureMapExtra;
-import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TexRect;
+import com.tttsaurus.saurus3d.mcpatches.api.extra.ITextureAtlasSpriteExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.extra.ITextureMapExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
+import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
 import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.RectMergeAlgorithm;
-import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TexUpdatePlan;
-import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TextureUploader;
+import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexUpdatePlan;
+import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TextureUploaderV1;
+import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TextureUploaderV2;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.Stitcher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -48,7 +50,7 @@ public class TextureMapMixin implements ITextureMapExtra
     private Map<TexRect, List<TextureAtlasSprite>> saurus3D$mergedAnimatedSprites;
 
     @Unique
-    private List<TextureUploader> saurus3D$textureUploader;
+    private List<ITextureUploader> saurus3D$textureUploader;
 
     @Shadow
     @Final
@@ -90,11 +92,16 @@ public class TextureMapMixin implements ITextureMapExtra
                 for (TexRect rect: saurus3D$mergedAnimatedSprites.keySet())
                 {
                     bufferSize += rect.width * rect.height * 4;
-                    saurus3D$textureUploader.add(new TextureUploader());
+                    saurus3D$textureUploader.add(new TextureUploaderV2());
                 }
 
-                for (TextureUploader uploader: saurus3D$textureUploader)
-                    uploader.init(bufferSize, 2);
+                for (ITextureUploader uploader: saurus3D$textureUploader)
+                {
+                    if (uploader instanceof TextureUploaderV1 v1)
+                        v1.init(bufferSize);
+                    else if (uploader instanceof TextureUploaderV2 v2)
+                        v2.init(bufferSize, 2);
+                }
             }
         }
     }
@@ -118,7 +125,7 @@ public class TextureMapMixin implements ITextureMapExtra
         {
             TexRect rect = entry.getKey();
             List<TextureAtlasSprite> sprites = entry.getValue();
-            TextureUploader uploader = saurus3D$textureUploader.get(index);
+            ITextureUploader uploader = saurus3D$textureUploader.get(index);
 
             boolean abort = false;
             uploader.reset();
@@ -126,7 +133,7 @@ public class TextureMapMixin implements ITextureMapExtra
             {
                 ITextureAtlasSpriteExtra spriteExtra = ((ITextureAtlasSpriteExtra)sprite);
 
-                TexUpdatePlan plan = spriteExtra.updateAnimation_V2();
+                TexUpdatePlan plan = spriteExtra.updateAnimationV2();
                 for (int i = 0; i < plan.data.length; i++)
                 {
                     if ((plan.rect.width >> i <= 0) || (plan.rect.height >> i <= 0))

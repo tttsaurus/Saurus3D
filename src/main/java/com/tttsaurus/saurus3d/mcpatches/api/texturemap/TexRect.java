@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
+package com.tttsaurus.saurus3d.mcpatches.api.texturemap;
 
 public class TexRect
 {

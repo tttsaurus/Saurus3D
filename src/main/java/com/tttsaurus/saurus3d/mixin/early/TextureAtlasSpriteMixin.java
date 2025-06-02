@@ -1,8 +1,8 @@
 package com.tttsaurus.saurus3d.mixin.early;
 
-import com.tttsaurus.saurus3d.mcpatches.api.ITextureAtlasSpriteExtra;
-import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TexRect;
-import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.TexUpdatePlan;
+import com.tttsaurus.saurus3d.mcpatches.api.extra.ITextureAtlasSpriteExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
+import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexUpdatePlan;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.data.AnimationMetadataSection;
 import org.spongepowered.asm.mixin.Mixin;
@@ -62,7 +62,7 @@ public class TextureAtlasSpriteMixin implements ITextureAtlasSpriteExtra
     protected int[][] interpolatedFrameData;
 
     @Override
-    public TexUpdatePlan updateAnimation_V2()
+    public TexUpdatePlan updateAnimationV2()
     {
         ++this.tickCounter;
 

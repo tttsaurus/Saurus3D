@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.mixin.early;
 
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
-import com.tttsaurus.saurus3d.mcpatches.api.IRenderChunkExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.extra.IRenderChunkExtra;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
 import com.tttsaurus.saurus3d.common.core.buffer.VBO;
 import net.minecraft.client.renderer.chunk.RenderChunk;

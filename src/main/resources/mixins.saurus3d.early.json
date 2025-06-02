@@ -13,7 +13,6 @@
     "StitcherHolderMixin",
     "TextureAtlasSpriteMixin",
     "TextureMapMixin",
-    "TextureUtilMixin",
     "VertexBufferMixin"
   ],
   "server": []

@@ -14,8 +14,7 @@ import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
 import com.tttsaurus.saurus3d.config.ConfigFileHelper;
 import com.tttsaurus.saurus3d.config.Saurus3DGLDebugConfig;
 import com.tttsaurus.saurus3d.config.Saurus3DGLFeatureConfig;
-import com.tttsaurus.saurus3d.mcpatches.api.ITextureMapExtra;
-import com.tttsaurus.saurus3d.test.MyVboRenderList;
+import com.tttsaurus.saurus3d.mcpatches.api.extra.ITextureMapExtra;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -204,8 +203,8 @@ public class MinecraftMixin
             renderContainerField.setAccessible(true);
             try
             {
-                renderContainerField.set(Minecraft.getMinecraft().renderGlobal, new MyVboRenderList());
-                Saurus3D.LOGGER.info("Set renderContainer to MyVboRenderList.");
+//                renderContainerField.set(Minecraft.getMinecraft().renderGlobal, new MyVboRenderList());
+//                Saurus3D.LOGGER.info("Set renderContainer to MyVboRenderList.");
             }
             catch (Exception ignored) { }
         }

@@ -1,5 +1,6 @@
 package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
+import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

@@ -3,6 +3,8 @@ package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 import com.tttsaurus.saurus3d.common.core.buffer.BufferUploadHint;
 import com.tttsaurus.saurus3d.common.core.buffer.MapBufferAccessBit;
 import com.tttsaurus.saurus3d.common.core.buffer.PBO;
+import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
+import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -13,7 +15,7 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.*;
 
-public class TextureUploader
+public final class TextureUploaderV2 implements ITextureUploader
 {
     private ByteBuffer pboByteBuffer;
     private final List<List<PBO>> pboLists = new ArrayList<>();
@@ -22,8 +24,8 @@ public class TextureUploader
     private int bufferingIndex;
     private boolean firstCycle;
 
-    private final Map<Integer, List<int[]>> mipmapData = new HashMap<>();
-    private final Map<Integer, List<TexRect>> mipmapRect = new HashMap<>();
+    private final Map<Integer, List<int[]>> mipmapData = new TreeMap<>();
+    private final Map<Integer, List<TexRect>> mipmapRect = new TreeMap<>();
 
     private static void rotateLeftByOne(List<PBO> list)
     {
@@ -89,18 +91,17 @@ public class TextureUploader
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 
-        //todo: guarantee level order 0 -> 1 -> 2 ...
-
         int index = 0;
         int len = mipmapData.size();
         for (Map.Entry<Integer, List<int[]>> entry: mipmapData.entrySet())
         {
             int level = entry.getKey();
+
             TexRect bigRect = new TexRect(rect.x >> level, rect.y >> level, rect.width >> level, rect.height >> level);
             List<TexRect> rects = mipmapRect.get(level);
             List<int[]> datas = entry.getValue();
 
-            int[] mergedData = mergeTexs(bigRect, rects, datas);
+            int[] mergedData = TextureMerger.mergeTexs(bigRect, rects, datas);
 
             if (pboLists.size() < len && index > pboLists.size() - 1) extendPboList(level);
             List<PBO> pbos = pboLists.get(index);
@@ -135,32 +136,8 @@ public class TextureUploader
             index++;
         }
 
-        bufferingIndex++;
+        if (!firstCycle) bufferingIndex++;
+
         GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, 0);
-    }
-
-    private static int[] mergeTexs(TexRect bigRect, List<TexRect> rects, List<int[]> datas)
-    {
-        int[] merged = new int[bigRect.width * bigRect.height];
-
-        for (int i = 0; i < rects.size(); i++)
-        {
-            TexRect rect = rects.get(i);
-            int[] data = datas.get(i);
-
-            for (int y = 0; y < rect.height; y++)
-            {
-                for (int x = 0; x < rect.width; x++)
-                {
-                    int srcIndex = y * rect.width + x;
-                    int dstX = rect.x + x - bigRect.x;
-                    int dstY = rect.y + y - bigRect.y;
-                    int dstIndex = dstY * bigRect.width + dstX;
-                    merged[dstIndex] = data[srcIndex];
-                }
-            }
-        }
-
-        return merged;
     }
 }

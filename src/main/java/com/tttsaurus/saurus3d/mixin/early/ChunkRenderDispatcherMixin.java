@@ -1,9 +1,9 @@
 package com.tttsaurus.saurus3d.mixin.early;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.tttsaurus.saurus3d.mcpatches.api.IBufferBuilderExtra;
-import com.tttsaurus.saurus3d.mcpatches.api.IRenderChunkExtra;
-import com.tttsaurus.saurus3d.mcpatches.api.IVertexBufferExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.extra.IBufferBuilderExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.extra.IRenderChunkExtra;
+import com.tttsaurus.saurus3d.mcpatches.api.extra.IVertexBufferExtra;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
 import com.tttsaurus.saurus3d.common.core.buffer.BufferID;
 import com.tttsaurus.saurus3d.common.core.buffer.BufferType;

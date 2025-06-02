@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.mcpatches.api;
+package com.tttsaurus.saurus3d.mcpatches.api.extra;
 
 public interface IVertexBufferExtra
 {
