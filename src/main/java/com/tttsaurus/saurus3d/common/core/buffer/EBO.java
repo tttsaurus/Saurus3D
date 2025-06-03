@@ -153,17 +153,9 @@ public class EBO extends GLDisposable
 
     public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, ByteBuffer byteBuffer)
     {
-        uploadByMappedBuffer(mappingOffset, mappingSize, offset, byteBuffer, true);
+        uploadByMappedBuffer(mappingOffset, mappingSize, offset, byteBuffer, MapBufferAccessBit.WRITE_BIT, MapBufferAccessBit.INVALIDATE_RANGE_BIT);
     }
     public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, ByteBuffer byteBuffer, MapBufferAccessBit... accessBits)
-    {
-        uploadByMappedBuffer(mappingOffset, mappingSize, offset, byteBuffer, true, accessBits);
-    }
-    public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, ByteBuffer byteBuffer, boolean unmap)
-    {
-        uploadByMappedBuffer(mappingOffset, mappingSize, offset, byteBuffer, unmap, MapBufferAccessBit.WRITE_BIT, MapBufferAccessBit.INVALIDATE_RANGE_BIT);
-    }
-    public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, ByteBuffer byteBuffer, boolean unmap, MapBufferAccessBit... accessBits)
     {
         if (eboID == null)
             throw new GLIllegalBufferIDException("Must set an EBO ID first.");
@@ -196,7 +188,7 @@ public class EBO extends GLDisposable
         {
             mappedBuffer.position(offset);
             mappedBuffer.put(byteBuffer);
-            if (unmap) GL15.glUnmapBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER);
+            GL15.glUnmapBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER);
         }
         else
             throw new GLMapBufferException("Failed to map buffer.");
