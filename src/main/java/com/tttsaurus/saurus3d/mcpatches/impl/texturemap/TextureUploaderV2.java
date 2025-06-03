@@ -84,6 +84,8 @@ public final class TextureUploaderV2 implements ITextureUploader
         mipmapRect.get(level).add(new TexRect(rect.x >> level, rect.y >> level, rect.width >> level, rect.height >> level));
     }
 
+    private final Map<Integer, int[]> mergedDataContainer = new HashMap<>();
+
     public void batchUpload(TexRect rect, boolean setTexParam)
     {
         boolean mipmap = mipmapData.size() > 1;
@@ -106,7 +108,8 @@ public final class TextureUploaderV2 implements ITextureUploader
             List<TexRect> rects = mipmapRect.get(level);
             List<int[]> datas = entry.getValue();
 
-            int[] mergedData = TextureMerger.mergeTexs(bigRect, rects, datas);
+            int[] merged = mergedDataContainer.computeIfAbsent(level, k -> new int[bigRect.width * bigRect.height]);
+            TextureMerger.mergeTexs(merged, bigRect, rects, datas);
 
             if (pboLists.size() < len && index > pboLists.size() - 1) extendPboList(level);
             List<PBO> pbos = pboLists.get(index);
@@ -129,9 +132,9 @@ public final class TextureUploaderV2 implements ITextureUploader
             pboByteBuffer.position(0);
             pboByteBuffer.clear();
             IntBuffer intView = pboByteBuffer.asIntBuffer();
-            intView.put(mergedData);
+            intView.put(merged);
             pboByteBuffer.position(0);
-            pboByteBuffer.limit(mergedData.length * Integer.BYTES);
+            pboByteBuffer.limit(merged.length * Integer.BYTES);
 
             pboToUpload.uploadByMappedBuffer(0, pboByteBuffer.remaining(), 0, pboByteBuffer,
                     MapBufferAccessBit.WRITE_BIT,

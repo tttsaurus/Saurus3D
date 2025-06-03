@@ -8,10 +8,7 @@ import org.lwjgl.opengl.GL12;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public final class TextureUploaderV1 implements ITextureUploader
 {
@@ -42,6 +39,8 @@ public final class TextureUploaderV1 implements ITextureUploader
         mipmapRect.get(level).add(new TexRect(rect.x >> level, rect.y >> level, rect.width >> level, rect.height >> level));
     }
 
+    private final Map<Integer, int[]> mergedDataContainer = new HashMap<>();
+
     public void batchUpload(TexRect rect, boolean setTexParam)
     {
         boolean mipmap = mipmapData.size() > 1;
@@ -62,12 +61,13 @@ public final class TextureUploaderV1 implements ITextureUploader
             List<TexRect> rects = mipmapRect.get(level);
             List<int[]> datas = entry.getValue();
 
-            int[] mergedData = TextureMerger.mergeTexs(bigRect, rects, datas);
+            int[] merged = mergedDataContainer.computeIfAbsent(level, k -> new int[bigRect.width * bigRect.height]);
+            TextureMerger.mergeTexs(merged, bigRect, rects, datas);
 
             byteBuffer.position(0);
             byteBuffer.clear();
             IntBuffer intView = byteBuffer.asIntBuffer();
-            intView.put(mergedData);
+            intView.put(merged);
             intView.flip();
 
             GlStateManager.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, intView);

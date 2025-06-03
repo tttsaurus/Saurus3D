@@ -5,10 +5,8 @@ import java.util.List;
 
 public final class TextureMerger
 {
-    public static int[] mergeTexs(TexRect bigRect, List<TexRect> rects, List<int[]> datas)
+    public static void mergeTexs(int[] merged, TexRect bigRect, List<TexRect> rects, List<int[]> datas)
     {
-        int[] merged = new int[bigRect.width * bigRect.height];
-
         for (int i = 0; i < rects.size(); i++)
         {
             TexRect rect = rects.get(i);
@@ -26,7 +24,5 @@ public final class TextureMerger
                 }
             }
         }
-
-        return merged;
     }
 }
