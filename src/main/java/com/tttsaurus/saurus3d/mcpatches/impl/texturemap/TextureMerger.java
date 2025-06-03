@@ -20,6 +20,10 @@ public final class TextureMerger
                     int dstX = rect.x + x - bigRect.x;
                     int dstY = rect.y + y - bigRect.y;
                     int dstIndex = dstY * bigRect.width + dstX;
+
+                    // compat with multithreading
+                    if (Thread.interrupted()) return;
+
                     merged[dstIndex] = data[srcIndex];
                 }
             }

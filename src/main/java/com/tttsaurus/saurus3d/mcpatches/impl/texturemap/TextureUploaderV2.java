@@ -1,5 +1,6 @@
 package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
+import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.buffer.BufferUploadHint;
 import com.tttsaurus.saurus3d.common.core.buffer.MapBufferAccessBit;
 import com.tttsaurus.saurus3d.common.core.buffer.PBO;
@@ -12,6 +13,7 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL21;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public final class TextureUploaderV2 implements ITextureUploader
 {
@@ -23,6 +25,9 @@ public final class TextureUploaderV2 implements ITextureUploader
 
     private final Map<Integer, List<int[]>> mipmapData = new TreeMap<>();
     private final Map<Integer, List<TexRect>> mipmapRect = new TreeMap<>();
+
+    private final Map<Integer, CompletableFuture<?>> mergingProcesses = new HashMap<>();
+    private boolean skipFirstTick;
 
     private static void rotateLeftByOne(List<PBO> list)
     {
@@ -55,6 +60,7 @@ public final class TextureUploaderV2 implements ITextureUploader
     {
         bufferingIndex = 0;
         firstCycle = false;
+        skipFirstTick = true;
         this.bufferSize = bufferSize;
         this.bufferingNum = bufferingNum;
 
@@ -102,36 +108,69 @@ public final class TextureUploaderV2 implements ITextureUploader
             List<TexRect> rects = mipmapRect.get(level);
             List<int[]> datas = entry.getValue();
 
+            // complete pboLists and mergedDataContainer in the first tick
             if (pboLists.size() < len && index > pboLists.size() - 1) extendPboList(level);
             List<PBO> pbos = pboLists.get(index);
-
-            PBO pboToUpload;
-            if (!firstCycle)
-            {
-                pboToUpload = pbos.get(bufferingIndex);
-                if (bufferingIndex >= bufferingNum - 1) firstCycle = true;
-            }
-            else
-            {
-                PBO pboToUse = pbos.get(0);
-                GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboToUse.getPboID().getID());
-                GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, 0);
-                rotateLeftByOne(pbos);
-                pboToUpload = pbos.get(bufferingNum - 1);
-            }
-
             int[] merged = mergedDataContainer.computeIfAbsent(level, k -> new int[bigRect.width * bigRect.height]);
-            TextureMerger.mergeTexs(merged, bigRect, rects, datas);
 
-            pboToUpload.uploadByMappedBuffer(0, merged.length * Integer.BYTES, 0, merged,
-                    MapBufferAccessBit.WRITE_BIT,
-                    MapBufferAccessBit.INVALIDATE_BUFFER_BIT,
-                    MapBufferAccessBit.UNSYNCHRONIZED_BIT);
+            boolean mergedReady = false;
+            CompletableFuture<?> process = mergingProcesses.get(level);
+            if (process == null)
+            {
+                // first tick
+                mergingProcesses.put(level, CompletableFuture.runAsync(() ->
+                {
+                    TextureMerger.mergeTexs(merged, bigRect, rects, datas);
+                }));
+            }
+            else if (process.isDone())
+                mergedReady = true;
+
+            if (!skipFirstTick)
+            {
+                PBO pboToUpload;
+                if (!firstCycle)
+                {
+                    pboToUpload = pbos.get(bufferingIndex);
+                    if (bufferingIndex >= bufferingNum - 1) firstCycle = true;
+                }
+                else
+                {
+                    PBO pboToUse = pbos.get(0);
+                    GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboToUse.getPboID().getID());
+                    GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, 0);
+                    rotateLeftByOne(pbos);
+                    pboToUpload = pbos.get(bufferingNum - 1);
+                }
+
+                if (mergedReady)
+                {
+                    pboToUpload.uploadByMappedBuffer(0, merged.length * Integer.BYTES, 0, merged,
+                            MapBufferAccessBit.WRITE_BIT,
+                            MapBufferAccessBit.INVALIDATE_BUFFER_BIT,
+                            MapBufferAccessBit.UNSYNCHRONIZED_BIT);
+                }
+                else
+                {
+                    // 1 tick is not enough to finish merging textures
+                    process.cancel(true);
+                    Saurus3D.LOGGER.warn("Didn't finish merging textures async. Some texture animation updates will be skipped on this tick.");
+                }
+
+                // merging textures for the next tick
+                mergingProcesses.put(level, CompletableFuture.runAsync(() ->
+                {
+                    TextureMerger.mergeTexs(merged, bigRect, rects, datas);
+                }));
+            }
 
             index++;
         }
 
-        if (!firstCycle) bufferingIndex++;
+        if (skipFirstTick)
+            skipFirstTick = false;
+        else if (!firstCycle)
+            bufferingIndex++;
 
         GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, 0);
     }
