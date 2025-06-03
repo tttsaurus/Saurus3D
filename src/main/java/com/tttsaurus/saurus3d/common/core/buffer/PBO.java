@@ -178,6 +178,51 @@ public class PBO extends GLDisposable
 
         if (autoRebindToOldPbo) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
     }
+    public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, int[] data)
+    {
+        uploadByMappedBuffer(mappingOffset, mappingSize, offset, data, MapBufferAccessBit.WRITE_BIT, MapBufferAccessBit.INVALIDATE_RANGE_BIT);
+    }
+    public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, int[] data, MapBufferAccessBit... accessBits)
+    {
+        if (pboID == null)
+            throw new GLIllegalBufferIDException("Must set a PBO ID first.");
+        if (mappingSize < 0)
+            throw new GLIllegalStateException("Cannot have negative size.");
+        if (mappingOffset < 0 || offset < 0)
+            throw new GLOverflowException("Cannot have negative offset.");
+        if (mappingOffset + mappingSize > pboSize)
+            throw new GLOverflowException("Allocated PBO size must be greater than or equal to mappingOffset + mappingSize.");
+        if (offset + data.length * Integer.BYTES > mappingSize)
+            throw new GLOverflowException("Parameter mappingSize must be greater than or equal to offset + data.length * Integer.BYTES.");
+
+        int prevPbo = 0;
+        if (autoRebindToOldPbo) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
+
+        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
+
+        int access = 0;
+        for (MapBufferAccessBit bit: accessBits)
+            access |= bit.glValue;
+
+        ByteBuffer mappedBuffer = GL30.glMapBufferRange(
+                GL21.GL_PIXEL_UNPACK_BUFFER,
+                mappingOffset,
+                mappingSize,
+                access,
+                null);
+
+        if (mappedBuffer != null)
+        {
+            mappedBuffer.position(offset);
+            IntBuffer intView = mappedBuffer.asIntBuffer();
+            intView.put(data);
+            GL15.glUnmapBuffer(GL21.GL_PIXEL_UNPACK_BUFFER);
+        }
+        else
+            throw new GLMapBufferException("Failed to map buffer.");
+
+        if (autoRebindToOldPbo) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
+    }
     //</editor-fold>
 
     @Override

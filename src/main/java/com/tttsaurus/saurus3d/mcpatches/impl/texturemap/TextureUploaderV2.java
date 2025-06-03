@@ -11,14 +11,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL21;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 import java.util.*;
 
 public final class TextureUploaderV2 implements ITextureUploader
 {
-    private ByteBuffer pboByteBuffer;
     private final List<List<PBO>> pboLists = new ArrayList<>();
     private int bufferSize;
     private int bufferingNum;
@@ -61,8 +57,6 @@ public final class TextureUploaderV2 implements ITextureUploader
         firstCycle = false;
         this.bufferSize = bufferSize;
         this.bufferingNum = bufferingNum;
-
-        pboByteBuffer = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
 
         extendPboList(0);
     }
@@ -108,9 +102,6 @@ public final class TextureUploaderV2 implements ITextureUploader
             List<TexRect> rects = mipmapRect.get(level);
             List<int[]> datas = entry.getValue();
 
-            int[] merged = mergedDataContainer.computeIfAbsent(level, k -> new int[bigRect.width * bigRect.height]);
-            TextureMerger.mergeTexs(merged, bigRect, rects, datas);
-
             if (pboLists.size() < len && index > pboLists.size() - 1) extendPboList(level);
             List<PBO> pbos = pboLists.get(index);
 
@@ -129,14 +120,10 @@ public final class TextureUploaderV2 implements ITextureUploader
                 pboToUpload = pbos.get(bufferingNum - 1);
             }
 
-            pboByteBuffer.position(0);
-            pboByteBuffer.clear();
-            IntBuffer intView = pboByteBuffer.asIntBuffer();
-            intView.put(merged);
-            pboByteBuffer.position(0);
-            pboByteBuffer.limit(merged.length * Integer.BYTES);
+            int[] merged = mergedDataContainer.computeIfAbsent(level, k -> new int[bigRect.width * bigRect.height]);
+            TextureMerger.mergeTexs(merged, bigRect, rects, datas);
 
-            pboToUpload.uploadByMappedBuffer(0, pboByteBuffer.remaining(), 0, pboByteBuffer,
+            pboToUpload.uploadByMappedBuffer(0, merged.length * Integer.BYTES, 0, merged,
                     MapBufferAccessBit.WRITE_BIT,
                     MapBufferAccessBit.INVALIDATE_BUFFER_BIT,
                     MapBufferAccessBit.UNSYNCHRONIZED_BIT);
