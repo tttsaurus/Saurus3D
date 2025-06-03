@@ -47,8 +47,7 @@ public class MinecraftMixin
     @Inject(method = "init", at = @At("HEAD"))
     private void beforeInit(CallbackInfo info)
     {
-        Saurus3D.isCleanroom = Saurus3D.isCleanroom();
-        if (Saurus3D.isCleanroom)
+        if (Saurus3D.isCleanroom())
             Saurus3D.LOGGER.info("Saurus3D is running under Cleanroom.");
         else
             Saurus3D.LOGGER.info("Saurus3D is running under Forge.");
@@ -67,7 +66,7 @@ public class MinecraftMixin
     private void createDisplayInTry(PixelFormat pixelFormat, Operation<Void> original) throws LWJGLException
     {
         // under Cleanroom
-        if (Saurus3D.isCleanroom)
+        if (Saurus3D.isCleanroom())
         {
             if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
             {
@@ -117,7 +116,7 @@ public class MinecraftMixin
 
     // only works for Forge
     // no such place to wrap under Cleanroom
-    @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create()V", remap = false))
+    @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create()V", remap = false), require = 1)
     private void createDisplayInCatch(Operation<Void> original) throws LWJGLException
     {
         if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)

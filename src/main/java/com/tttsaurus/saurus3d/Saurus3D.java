@@ -31,19 +31,26 @@ public class Saurus3D
 
     public static ASMDataTable asmDataTable;
 
-    public static boolean isCleanroom;
+    private static Boolean isCleanroom = null;
 
     public static boolean isCleanroom()
     {
-        try
+        if (isCleanroom == null)
         {
-            Class.forName("com.cleanroommc.boot.Main");
-            return true;
+            try
+            {
+                Class.forName("com.cleanroommc.boot.Main");
+                isCleanroom = true;
+                return true;
+            }
+            catch (ClassNotFoundException e)
+            {
+                isCleanroom = false;
+                return false;
+            }
         }
-        catch (ClassNotFoundException e)
-        {
-            return false;
-        }
+        else
+            return isCleanroom;
     }
 
     @EventHandler
