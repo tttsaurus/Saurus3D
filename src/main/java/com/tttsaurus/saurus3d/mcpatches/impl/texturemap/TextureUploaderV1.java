@@ -1,5 +1,6 @@
 package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
+import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
 import net.minecraft.client.renderer.GlStateManager;
@@ -9,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public final class TextureUploaderV1 implements ITextureUploader
 {
@@ -17,9 +19,13 @@ public final class TextureUploaderV1 implements ITextureUploader
     private final Map<Integer, List<int[]>> mipmapData = new TreeMap<>();
     private final Map<Integer, List<TexRect>> mipmapRect = new TreeMap<>();
 
+    private final Map<Integer, CompletableFuture<?>> mergingProcesses = new HashMap<>();
+    private boolean skipFirstTick;
+
     public void init(int bufferSize)
     {
         byteBuffer = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
+        skipFirstTick = true;
     }
 
     public void reset()
@@ -61,17 +67,51 @@ public final class TextureUploaderV1 implements ITextureUploader
             List<TexRect> rects = mipmapRect.get(level);
             List<int[]> datas = entry.getValue();
 
+            // complete mergedDataContainer in the first tick
             int[] merged = mergedDataContainer.computeIfAbsent(level, k -> new int[bigRect.width * bigRect.height]);
-            TextureMerger.mergeTexs(merged, bigRect, rects, datas);
 
-            byteBuffer.position(0);
-            byteBuffer.clear();
-            IntBuffer intView = byteBuffer.asIntBuffer();
-            intView.put(merged);
-            intView.flip();
+            boolean mergedReady = false;
+            CompletableFuture<?> process = mergingProcesses.get(level);
+            if (process == null)
+            {
+                // first tick
+                mergingProcesses.put(level, CompletableFuture.runAsync(() ->
+                {
+                    TextureMerger.mergeTexs(merged, bigRect, rects, datas);
+                }));
+            }
+            else if (process.isDone())
+                mergedReady = true;
 
-            GlStateManager.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, intView);
+            if (!skipFirstTick)
+            {
+                if (mergedReady)
+                {
+                    byteBuffer.position(0);
+                    byteBuffer.clear();
+                    IntBuffer intView = byteBuffer.asIntBuffer();
+                    intView.put(merged);
+                    intView.flip();
+
+                    GlStateManager.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, intView);
+                }
+                else
+                {
+                    // 1 tick is not enough to finish merging textures
+                    process.cancel(true);
+                    Saurus3D.LOGGER.warn("Didn't finish merging textures async. Some texture animation updates will be skipped on this tick.");
+                }
+
+                // merging textures for the next tick
+                mergingProcesses.put(level, CompletableFuture.runAsync(() ->
+                {
+                    TextureMerger.mergeTexs(merged, bigRect, rects, datas);
+                }));
+            }
         }
+
+        if (skipFirstTick)
+            skipFirstTick = false;
     }
 
     @Override
