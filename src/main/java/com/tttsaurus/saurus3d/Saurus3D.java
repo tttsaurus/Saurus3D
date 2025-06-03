@@ -31,6 +31,21 @@ public class Saurus3D
 
     public static ASMDataTable asmDataTable;
 
+    public static boolean isCleanroom;
+
+    public static boolean isCleanroom()
+    {
+        try
+        {
+            Class.forName("com.cleanroommc.boot.Main");
+            return true;
+        }
+        catch (ClassNotFoundException e)
+        {
+            return false;
+        }
+    }
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {

@@ -47,6 +47,12 @@ public class MinecraftMixin
     @Inject(method = "init", at = @At("HEAD"))
     private void beforeInit(CallbackInfo info)
     {
+        Saurus3D.isCleanroom = Saurus3D.isCleanroom();
+        if (Saurus3D.isCleanroom)
+            Saurus3D.LOGGER.info("Saurus3D is running under Cleanroom.");
+        else
+            Saurus3D.LOGGER.info("Saurus3D is running under Forge.");
+
         Saurus3DGLDebugConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("gl_debug"));
         Saurus3DGLDebugConfig.loadConfig();
         Saurus3D.LOGGER.info("Saurus3D GL Debug Config loaded.");
@@ -60,17 +66,66 @@ public class MinecraftMixin
     @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create(Lorg/lwjgl/opengl/PixelFormat;)V", remap = false))
     private void createDisplayInTry(PixelFormat pixelFormat, Operation<Void> original) throws LWJGLException
     {
-        if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
-            Display.create(pixelFormat, new ContextAttribs(1, 0, 0, ContextAttribs.CONTEXT_DEBUG_BIT_ARB));
+        // under Cleanroom
+        if (Saurus3D.isCleanroom)
+        {
+            if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
+            {
+                Saurus3D.LOGGER.info("Trying to enable debug context under Cleanroom.");
+                try
+                {
+                    Class<?> glfwClass = Class.forName("org.lwjgl.glfw.GLFW");
+
+                    int debugContextHint = (int) glfwClass.getField("GLFW_OPENGL_DEBUG_CONTEXT").get(null);
+                    int glfwTrue = (int) glfwClass.getField("GLFW_TRUE").get(null);
+
+                    Method glfwWindowHintMethod = glfwClass.getMethod("glfwWindowHint", int.class, int.class);
+
+                    glfwWindowHintMethod.invoke(null, debugContextHint, glfwTrue);
+
+                    Saurus3D.LOGGER.info("GLFW debug context hint enabled.");
+                }
+                catch (ClassNotFoundException e)
+                {
+                    Saurus3D.LOGGER.error("LWJGL3 GLFW class not found, skipping debug context hint.");
+                    Saurus3D.LOGGER.error("Failed to create the debug context under Cleanroom.");
+                }
+                catch (Throwable throwable)
+                {
+                    original.call(pixelFormat);
+                    Saurus3D.LOGGER.error("Failed to create the debug context under Cleanroom.");
+                    Saurus3D.LOGGER.throwing(throwable);
+                }
+                original.call(pixelFormat);
+            }
+            else
+                original.call(pixelFormat);
+        }
+        // under Forge
         else
-            original.call(pixelFormat);
+        {
+            if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
+            {
+                Saurus3D.LOGGER.info("Trying to enable debug context under Forge.");
+                Display.create(pixelFormat, new ContextAttribs(1, 0, 0, ContextAttribs.CONTEXT_DEBUG_BIT_ARB));
+                Saurus3D.LOGGER.info("Successfully created the Display with a debug context.");
+            }
+            else
+                original.call(pixelFormat);
+        }
     }
 
+    // only works for Forge
+    // no such place to wrap under Cleanroom
     @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create()V", remap = false))
     private void createDisplayInCatch(Operation<Void> original) throws LWJGLException
     {
         if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
+        {
+            Saurus3D.LOGGER.info("Trying to enable debug context under Forge.");
             Display.create(new PixelFormat(), new ContextAttribs(1, 0, 0, ContextAttribs.CONTEXT_DEBUG_BIT_ARB));
+            Saurus3D.LOGGER.info("Successfully created the Display with a debug context.");
+        }
         else
             original.call();
     }
