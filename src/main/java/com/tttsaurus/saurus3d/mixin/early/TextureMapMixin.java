@@ -59,7 +59,7 @@ public class TextureMapMixin implements ITextureMapExtra
     @Inject(method = "loadTextureAtlas", at = @At("RETURN"))
     private void afterLoadTextureAtlas(IResourceManager resourceManager, CallbackInfo ci)
     {
-        if (saurus3D$enableBatchTexUpload && saurus3D$mergedAnimatedSprites == null)
+        if (saurus3D$enableBatchTexUpload)
         {
             List<TexRect> rects = new ArrayList<>();
             for (TextureAtlasSprite sprite: listAnimatedSprites)
@@ -85,12 +85,11 @@ public class TextureMapMixin implements ITextureMapExtra
 
             Saurus3D.LOGGER.info(String.format("Merged %d animated textures into %d rectangles.", count, saurus3D$mergedAnimatedSprites.size()));
 
-            saurus3D$textureUploaders = new ArrayList<>();
+            if (saurus3D$textureUploaders != null)
+                for (ITextureUploader uploader: saurus3D$textureUploaders)
+                    uploader.dispose();
 
-            // 4 extra bytes to avoid potential overflow
-            int bufferSize = 4;
-            for (TexRect rect: saurus3D$mergedAnimatedSprites.keySet())
-                bufferSize += rect.width * rect.height * 4;
+            saurus3D$textureUploaders = new ArrayList<>();
 
             for (TexRect rect: saurus3D$mergedAnimatedSprites.keySet())
             {
@@ -108,21 +107,21 @@ public class TextureMapMixin implements ITextureMapExtra
                 {
                     builder.append("Using TextureUploaderV1");
                     TextureUploaderV1 uploader = new TextureUploaderV1();
-                    uploader.init(bufferSize);
+                    uploader.init(data + 128);
                     saurus3D$textureUploaders.add(uploader);
                 }
                 else if (data < 512 * 1024)
                 {
                     builder.append("Using TextureUploaderV2 Double Buffering");
                     TextureUploaderV2 uploader = new TextureUploaderV2();
-                    uploader.init(bufferSize, 2);
+                    uploader.init(data + 128, 2);
                     saurus3D$textureUploaders.add(uploader);
                 }
                 else
                 {
                     builder.append("Using TextureUploaderV2 Triple Buffering");
                     TextureUploaderV2 uploader = new TextureUploaderV2();
-                    uploader.init(bufferSize, 3);
+                    uploader.init(data + 128, 3);
                     saurus3D$textureUploaders.add(uploader);
                 }
 
@@ -142,9 +141,7 @@ public class TextureMapMixin implements ITextureMapExtra
 
         GlStateManager.bindTexture(((TextureMap)(Object)this).getGlTextureId());
 
-        for (TextureAtlasSprite sprite: this.listAnimatedSprites)
-            ((ITextureAtlasSpriteExtra)sprite).setUpdated(false);
-
+        boolean setTexParam = true;
         int index = 0;
         for (Map.Entry<TexRect, List<TextureAtlasSprite>> entry: saurus3D$mergedAnimatedSprites.entrySet())
         {
@@ -152,39 +149,19 @@ public class TextureMapMixin implements ITextureMapExtra
             List<TextureAtlasSprite> sprites = entry.getValue();
             ITextureUploader uploader = saurus3D$textureUploaders.get(index);
 
-            boolean abort = false;
             uploader.reset();
             for (TextureAtlasSprite sprite: sprites)
             {
                 ITextureAtlasSpriteExtra spriteExtra = ((ITextureAtlasSpriteExtra)sprite);
-
                 TexUpdatePlan plan = spriteExtra.updateAnimationV2();
                 for (int i = 0; i < plan.data.length; i++)
-                {
-                    if ((plan.rect.width >> i <= 0) || (plan.rect.height >> i <= 0))
-                        abort = true;
-                    else
-                        uploader.planTexUpload(i, plan.data[i], plan.rect);
-                }
-
-                if (abort) break;
-
-                spriteExtra.setUpdated(true);
+                    uploader.planTexUpload(i, plan.data[i], plan.rect);
             }
 
-            if (abort)
-            {
-                for (TextureAtlasSprite sprite: sprites)
-                    ((ITextureAtlasSpriteExtra)sprite).setUpdated(false);
-            }
-            else
-                uploader.batchUpload(rect);
+            uploader.batchUpload(rect, setTexParam);
+            if (setTexParam) setTexParam = false;
 
             index++;
         }
-
-        for (TextureAtlasSprite sprite: this.listAnimatedSprites)
-            if (!((ITextureAtlasSpriteExtra)sprite).isUpdated())
-                sprite.updateAnimation();
     }
 }

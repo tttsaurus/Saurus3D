@@ -3,6 +3,7 @@ package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 import com.tttsaurus.saurus3d.common.core.buffer.BufferUploadHint;
 import com.tttsaurus.saurus3d.common.core.buffer.MapBufferAccessBit;
 import com.tttsaurus.saurus3d.common.core.buffer.PBO;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
 import net.minecraft.client.renderer.GlStateManager;
@@ -83,13 +84,17 @@ public final class TextureUploaderV2 implements ITextureUploader
         mipmapRect.get(level).add(new TexRect(rect.x >> level, rect.y >> level, rect.width >> level, rect.height >> level));
     }
 
-    public void batchUpload(TexRect rect)
+    public void batchUpload(TexRect rect, boolean setTexParam)
     {
         boolean mipmap = mipmapData.size() > 1;
-        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, mipmap ? GL11.GL_NEAREST_MIPMAP_LINEAR : GL11.GL_NEAREST);
-        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+
+        if (setTexParam)
+        {
+            GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, mipmap ? GL11.GL_NEAREST_MIPMAP_LINEAR : GL11.GL_NEAREST);
+            GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+            GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+            GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+        }
 
         int index = 0;
         int len = mipmapData.size();
@@ -139,5 +144,18 @@ public final class TextureUploaderV2 implements ITextureUploader
         if (!firstCycle) bufferingIndex++;
 
         GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, 0);
+    }
+
+    @Override
+    public void dispose()
+    {
+        for (List<PBO> pbos: pboLists)
+        {
+            for (PBO pbo: pbos)
+            {
+                pbo.dispose();
+                GLResourceManager.removeDisposable(pbo);
+            }
+        }
     }
 }

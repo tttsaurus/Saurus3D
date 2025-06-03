@@ -13,21 +13,6 @@ import java.util.List;
 @Mixin(TextureAtlasSprite.class)
 public class TextureAtlasSpriteMixin implements ITextureAtlasSpriteExtra
 {
-    @Unique
-    private boolean saurus3D$updated;
-
-    @Override
-    public boolean isUpdated()
-    {
-        return saurus3D$updated;
-    }
-
-    @Override
-    public void setUpdated(boolean updated)
-    {
-        saurus3D$updated = updated;
-    }
-
     @Shadow
     protected int originX;
 

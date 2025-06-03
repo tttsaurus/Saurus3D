@@ -4,5 +4,6 @@ public interface ITextureUploader
 {
     void reset();
     void planTexUpload(int level, int[] data, TexRect rect);
-    void batchUpload(TexRect rect);
+    void batchUpload(TexRect rect, boolean setTexParam);
+    void dispose();
 }
