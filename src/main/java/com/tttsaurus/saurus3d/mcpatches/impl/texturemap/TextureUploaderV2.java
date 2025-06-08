@@ -8,6 +8,7 @@ import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
 import net.minecraft.client.renderer.GlStateManager;
+import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL15;
@@ -249,19 +250,13 @@ public final class TextureUploaderV2 implements ITextureUploader
                     pboToUpload = pbos.get(bufferingNum - 1);
                 }
 
-                if (mergedReady)
-                {
-                    pboToUpload.uploadByMappedBuffer(0, merged.length * Integer.BYTES, 0, merged,
-                            MapBufferAccessBit.WRITE_BIT,
-                            MapBufferAccessBit.INVALIDATE_BUFFER_BIT,
-                            MapBufferAccessBit.UNSYNCHRONIZED_BIT);
-                }
-                else
-                {
-                    // 1 tick is not enough to finish merging textures
-                    process.cancel(true);
-                    Saurus3D.LOGGER.warn("Didn't finish merging textures async. Some texture animation updates will be skipped on this tick.");
-                }
+                if (!mergedReady)
+                    process.join();
+
+                pboToUpload.uploadByMappedBuffer(0, merged.length * Integer.BYTES, 0, merged,
+                        MapBufferAccessBit.WRITE_BIT,
+                        MapBufferAccessBit.INVALIDATE_BUFFER_BIT,
+                        MapBufferAccessBit.UNSYNCHRONIZED_BIT);
 
                 // merging textures for the next tick
                 mergingProcesses.put(level, CompletableFuture.runAsync(() ->

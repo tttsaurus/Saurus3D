@@ -85,22 +85,16 @@ public final class TextureUploaderV1 implements ITextureUploader
 
             if (!skipFirstTick)
             {
-                if (mergedReady)
-                {
-                    byteBuffer.position(0);
-                    byteBuffer.clear();
-                    IntBuffer intView = byteBuffer.asIntBuffer();
-                    intView.put(merged);
-                    intView.flip();
+                if (!mergedReady)
+                    process.join();
 
-                    GlStateManager.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, intView);
-                }
-                else
-                {
-                    // 1 tick is not enough to finish merging textures
-                    process.cancel(true);
-                    Saurus3D.LOGGER.warn("Didn't finish merging textures async. Some texture animation updates will be skipped on this tick.");
-                }
+                byteBuffer.position(0);
+                byteBuffer.clear();
+                IntBuffer intView = byteBuffer.asIntBuffer();
+                intView.put(merged);
+                intView.flip();
+
+                GlStateManager.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, intView);
 
                 // merging textures for the next tick
                 mergingProcesses.put(level, CompletableFuture.runAsync(() ->

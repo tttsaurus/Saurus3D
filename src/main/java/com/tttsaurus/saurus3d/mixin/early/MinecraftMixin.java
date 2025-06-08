@@ -109,7 +109,7 @@ public class MinecraftMixin
 
     // only works for Forge
     // no such place to wrap under Cleanroom
-    @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create()V", remap = false), require = 1)
+    @WrapOperation(method = "createDisplay", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/Display;create()V", remap = false))
     private void createDisplayInCatch(Operation<Void> original) throws LWJGLException
     {
         if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
