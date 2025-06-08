@@ -1,5 +1,6 @@
 package com.tttsaurus.saurus3d.mixin.early;
 
+import com.tttsaurus.saurus3d.config.Saurus3DMCPatchesConfig;
 import com.tttsaurus.saurus3d.mcpatches.api.extra.IStitcherHolderExtra;
 import net.minecraft.client.renderer.texture.Stitcher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -26,10 +27,13 @@ public class StitcherHolderMixin implements IStitcherHolderExtra
     @Inject(method = "compareTo(Lnet/minecraft/client/renderer/texture/Stitcher$Holder;)I", at = @At("HEAD"), cancellable = true)
     public void compareTo(Stitcher.Holder p_compareTo_1_, CallbackInfoReturnable<Integer> cir)
     {
-        boolean thisAnimated = ((IStitcherHolderExtra)this).getSprite().hasAnimationMetadata();
-        boolean otherAnimated = ((IStitcherHolderExtra)p_compareTo_1_).getSprite().hasAnimationMetadata();
+        if (Saurus3DMCPatchesConfig.ENABLE_TEXTUREMAP_BATCH_TEX_UPLOAD)
+        {
+            boolean thisAnimated = ((IStitcherHolderExtra)this).getSprite().hasAnimationMetadata();
+            boolean otherAnimated = ((IStitcherHolderExtra)p_compareTo_1_).getSprite().hasAnimationMetadata();
 
-        if (thisAnimated != otherAnimated)
-            cir.setReturnValue(thisAnimated ? -1 : 1);
+            if (thisAnimated != otherAnimated)
+                cir.setReturnValue(thisAnimated ? -1 : 1);
+        }
     }
 }

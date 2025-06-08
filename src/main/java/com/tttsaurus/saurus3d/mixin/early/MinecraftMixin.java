@@ -10,7 +10,7 @@ import com.tttsaurus.saurus3d.common.core.gl.version.GLVersionHelper;
 import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
 import com.tttsaurus.saurus3d.config.ConfigFileHelper;
 import com.tttsaurus.saurus3d.config.Saurus3DGLDebugConfig;
-import com.tttsaurus.saurus3d.mcpatches.api.extra.ITextureMapExtra;
+import com.tttsaurus.saurus3d.config.Saurus3DMCPatchesConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -48,6 +48,10 @@ public class MinecraftMixin
         Saurus3DGLDebugConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("gl_debug"));
         Saurus3DGLDebugConfig.loadConfig();
         Saurus3D.LOGGER.info("Saurus3D GL Debug Config loaded.");
+
+        Saurus3DMCPatchesConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("mc_patches"));
+        Saurus3DMCPatchesConfig.loadConfig();
+        Saurus3D.LOGGER.info("Saurus3D MC Patches Config loaded.");
     }
 
     //<editor-fold desc="GL debug context">
@@ -152,7 +156,6 @@ public class MinecraftMixin
         //</editor-fold>
 
         //<editor-fold desc="init RenderUtils">
-        Saurus3D.LOGGER.info("");
         Saurus3D.LOGGER.info("Start initializing RenderUtils.");
         boolean successful = true;
         try
@@ -229,7 +232,6 @@ public class MinecraftMixin
     @Inject(method = "init", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;textureMapBlocks:Lnet/minecraft/client/renderer/texture/TextureMap;", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
     private void afterSetTextureMapBlocks(CallbackInfo ci)
     {
-        ((ITextureMapExtra)textureMapBlocks).setEnableBatchTexUpload(true);
-        Saurus3D.LOGGER.info("Enable texture map batch tex upload.");
+        //Saurus3D.LOGGER.info("Enable texture map batch tex upload.");
     }
 }

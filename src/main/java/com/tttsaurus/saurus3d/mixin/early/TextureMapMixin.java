@@ -4,8 +4,8 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
+import com.tttsaurus.saurus3d.config.Saurus3DMCPatchesConfig;
 import com.tttsaurus.saurus3d.mcpatches.api.extra.ITextureAtlasSpriteExtra;
-import com.tttsaurus.saurus3d.mcpatches.api.extra.ITextureMapExtra;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
 import com.tttsaurus.saurus3d.mcpatches.impl.texturemap.RectMergeAlgorithm;
@@ -29,23 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(TextureMap.class)
-public class TextureMapMixin implements ITextureMapExtra
+public class TextureMapMixin
 {
-    @Unique
-    private static boolean saurus3D$enableBatchTexUpload;
-
-    @Override
-    public boolean isEnableBatchTexUpload()
-    {
-        return saurus3D$enableBatchTexUpload;
-    }
-
-    @Override
-    public void setEnableBatchTexUpload(boolean flag)
-    {
-        saurus3D$enableBatchTexUpload = flag;
-    }
-
     @Unique
     private Map<TexRect, List<TextureAtlasSprite>> saurus3D$mergedAnimatedSprites;
 
@@ -59,7 +44,7 @@ public class TextureMapMixin implements ITextureMapExtra
     @Inject(method = "loadTextureAtlas", at = @At("RETURN"))
     private void afterLoadTextureAtlas(IResourceManager resourceManager, CallbackInfo ci)
     {
-        if (saurus3D$enableBatchTexUpload)
+        if (Saurus3DMCPatchesConfig.ENABLE_TEXTUREMAP_BATCH_TEX_UPLOAD)
         {
             List<TexRect> rects = new ArrayList<>();
             for (TextureAtlasSprite sprite: listAnimatedSprites)
@@ -133,7 +118,7 @@ public class TextureMapMixin implements ITextureMapExtra
     @WrapMethod(method = "updateAnimations")
     public void updateAnimations(Operation<Void> original)
     {
-        if (!saurus3D$enableBatchTexUpload || saurus3D$mergedAnimatedSprites == null)
+        if (!Saurus3DMCPatchesConfig.ENABLE_TEXTUREMAP_BATCH_TEX_UPLOAD || saurus3D$mergedAnimatedSprites == null)
         {
             original.call();
             return;
