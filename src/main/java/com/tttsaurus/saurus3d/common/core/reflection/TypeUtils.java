@@ -43,7 +43,7 @@ public final class TypeUtils
             case "byte" -> Byte.class;
             case "double" -> Double.class;
             case "float" -> Float.class;
-            case "character" -> Character.class;
+            case "char" -> Character.class;
             case "boolean" -> Boolean.class;
             default -> null;
         };

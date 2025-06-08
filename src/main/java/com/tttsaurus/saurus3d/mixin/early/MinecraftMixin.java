@@ -6,23 +6,17 @@ import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.RenderUtils;
 import com.tttsaurus.saurus3d.common.core.function.Action;
 import com.tttsaurus.saurus3d.common.core.gl.debug.KHRDebugManager;
-import com.tttsaurus.saurus3d.common.core.gl.feature.GLFeatureManager;
-import com.tttsaurus.saurus3d.common.core.gl.feature.IGLFeature;
-import com.tttsaurus.saurus3d.common.core.gl.feature.Saurus3DGLFeature;
 import com.tttsaurus.saurus3d.common.core.gl.version.GLVersionHelper;
 import com.tttsaurus.saurus3d.common.core.shutdown.ShutdownHooks;
 import com.tttsaurus.saurus3d.config.ConfigFileHelper;
 import com.tttsaurus.saurus3d.config.Saurus3DGLDebugConfig;
-import com.tttsaurus.saurus3d.config.Saurus3DGLFeatureConfig;
 import com.tttsaurus.saurus3d.mcpatches.api.extra.ITextureMapExtra;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.ContextAttribs;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.PixelFormat;
+import org.lwjgl.opengl.*;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,7 +26,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin
@@ -55,10 +48,6 @@ public class MinecraftMixin
         Saurus3DGLDebugConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("gl_debug"));
         Saurus3DGLDebugConfig.loadConfig();
         Saurus3D.LOGGER.info("Saurus3D GL Debug Config loaded.");
-
-        Saurus3DGLFeatureConfig.CONFIG = ConfigFileHelper.makeFile("gl_feature_classes");
-        Saurus3DGLFeatureConfig.loadConfig();
-        Saurus3D.LOGGER.info("Saurus3D GL Feature Config loaded.");
     }
 
     //<editor-fold desc="GL debug context">
@@ -140,44 +129,9 @@ public class MinecraftMixin
         Saurus3D.LOGGER.info(String.format("OpenGL Version: %d.%d", majorGLVersion, minorGLVersion));
         //</editor-fold>
 
-        //<editor-fold desc="GL features initialization">
-        Method checkAvailabilityMethod = null;
-        try
-        {
-            checkAvailabilityMethod = GLFeatureManager.class.getDeclaredMethod("checkAvailability", String.class, Class.class);
-        }
-        catch (Exception ignored) { }
-
-        if (checkAvailabilityMethod != null)
-        {
-            checkAvailabilityMethod.setAccessible(true);
-
-            Saurus3D.LOGGER.info("");
-            Saurus3D.LOGGER.info("Start checking Saurus3D GL feature availabilities.");
-            for (Class<? extends IGLFeature> featureClass: Saurus3DGLFeatureConfig.FEATURE_CLASSES)
-            {
-                try
-                {
-                    String featureName = featureClass.getAnnotation(Saurus3DGLFeature.class).value();
-                    checkAvailabilityMethod.invoke(null, new Object[]{featureName, featureClass});
-                }
-                catch (Throwable throwable)
-                {
-                    Saurus3D.LOGGER.throwing(throwable);
-                }
-            }
-            Saurus3D.LOGGER.info("Finished checking Saurus3D GL feature availabilities.");
-        }
-
-        Saurus3D.LOGGER.info("");
-        Saurus3D.LOGGER.info("Saurus3D GL features: ");
-        for (Map.Entry<String, Boolean> entry: GLFeatureManager.getAvailability().entrySet())
-            Saurus3D.LOGGER.info("- Feature " + entry.getKey() + " is " + (entry.getValue() ? "" : "not ") + "available.");
-        Saurus3D.LOGGER.info("");
-        //</editor-fold>
-
         //<editor-fold desc="GL auto debug">
-        GLFeatureManager.require("KHR_DEBUG").run(() ->
+        ContextCapabilities capabilities = GLContext.getCapabilities();
+        if (capabilities.GL_KHR_debug || GLVersionHelper.supported(4, 3))
         {
             if (Saurus3DGLDebugConfig.ENABLE_AUTO_DEBUG)
             {
@@ -189,7 +143,7 @@ public class MinecraftMixin
                 }
                 catch (Exception ignored) { }
             }
-        });
+        }
 
         if (KHRDebugManager.isEnable())
             Saurus3D.LOGGER.info("GL Auto Debug is enabled.");
@@ -200,6 +154,7 @@ public class MinecraftMixin
         //<editor-fold desc="init RenderUtils">
         Saurus3D.LOGGER.info("");
         Saurus3D.LOGGER.info("Start initializing RenderUtils.");
+        boolean successful = true;
         try
         {
             RenderUtils.getModelViewMatrix();
@@ -207,6 +162,7 @@ public class MinecraftMixin
         }
         catch (Throwable throwable)
         {
+            successful = false;
             Saurus3D.LOGGER.warn("RenderUtils.getModelViewMatrix() is not ready.");
             Saurus3D.LOGGER.throwing(throwable);
         }
@@ -217,6 +173,7 @@ public class MinecraftMixin
         }
         catch (Throwable throwable)
         {
+            successful = false;
             Saurus3D.LOGGER.warn("RenderUtils.getProjectionMatrix() is not ready.");
             Saurus3D.LOGGER.throwing(throwable);
         }
@@ -227,10 +184,11 @@ public class MinecraftMixin
         }
         catch (Throwable throwable)
         {
+            successful = false;
             Saurus3D.LOGGER.warn("RenderUtils.getPartialTick() is not ready.");
             Saurus3D.LOGGER.throwing(throwable);
         }
-        Saurus3D.LOGGER.info("Finished initializing RenderUtils.");
+        Saurus3D.LOGGER.info("Finished initializing RenderUtils. The module is " + (successful ? "ready." : "not ready."));
         //</editor-fold>
     }
 
