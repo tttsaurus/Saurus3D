@@ -88,14 +88,14 @@ public class TextureMapMixin
                         rect.height,
                         data));
 
-                if (data < 64 * 1024)
+                if (data < Saurus3DMCPatchesConfig.DOUBLE_BUFFERING_THRESHOLD)
                 {
                     builder.append("Using TextureUploaderV1");
                     TextureUploaderV1 uploader = new TextureUploaderV1();
                     uploader.init(data + 128);
                     saurus3D$textureUploaders.add(uploader);
                 }
-                else if (data < 512 * 1024)
+                else if (data < Saurus3DMCPatchesConfig.TRIPLE_BUFFERING_THRESHOLD)
                 {
                     builder.append("Using TextureUploaderV2 Double Buffering");
                     TextureUploaderV2 uploader = new TextureUploaderV2();
