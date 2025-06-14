@@ -38,11 +38,6 @@ public class MinecraftMixin
     {
         if (Saurus3D.isCleanroom())
             Saurus3D.LOGGER.info("Saurus3D is running under Cleanroom.");
-        else
-        {
-            Saurus3D.LOGGER.info("Saurus3D is running under Forge.");
-            throw new RuntimeException("Cleanroom environment is required.");
-        }
 
         Saurus3DGLDebugConfig.CONFIG = new Configuration(ConfigFileHelper.makeFile("gl_debug"));
         Saurus3DGLDebugConfig.loadConfig();

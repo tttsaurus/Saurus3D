@@ -5,6 +5,10 @@ A WIP general purpose render lib for Minecraft 1.12.2
 - Shader-Graph editor
 - A lot
 
+## Credits
+- Created using [CleanroomModTemplate](https://github.com/CleanroomMC/CleanroomModTemplate/tree/mixin)
+- Bundled [JOML](https://github.com/JOML-CI/JOML) licensed under MIT
+
 ## Rough Benchmark
 
 > Disclaimer: on my machine
