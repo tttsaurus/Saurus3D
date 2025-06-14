@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.mixin.early;
+package com.tttsaurus.saurus3d.mixin;
 
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.mcpatches.api.extra.IRenderChunkExtra;

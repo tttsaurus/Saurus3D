@@ -16,7 +16,9 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.opengl.GL11C;
+import org.lwjgl.system.MemoryStack;
+import org.lwjglx.util.vector.Matrix4f;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -63,26 +65,25 @@ public final class Test
     private static int shadeModel = 0;
     private static boolean depthTest = false;
     private static boolean cullFace = false;
-
-    private static final IntBuffer intBuffer = ByteBuffer.allocateDirect(16 << 2).order(ByteOrder.nativeOrder()).asIntBuffer();
-    private static final FloatBuffer floatBuffer = ByteBuffer.allocateDirect(16 << 2).order(ByteOrder.nativeOrder()).asFloatBuffer();
     //</editor-fold>
 
     private static void storeCommonGlStates()
     {
-        GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D, intBuffer);
-        textureID = intBuffer.get(0);
-        GL11.glGetFloat(GL11.GL_CURRENT_COLOR, floatBuffer);
-        r = floatBuffer.get(0);
-        g = floatBuffer.get(1);
-        b = floatBuffer.get(2);
-        a = floatBuffer.get(3);
+        textureID = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+        try (MemoryStack stack = MemoryStack.stackPush())
+        {
+            FloatBuffer buffer = stack.mallocFloat(4);
+            GL11.glGetFloatv(GL11.GL_CURRENT_COLOR, buffer);
+            float r = buffer.get(0);
+            float g = buffer.get(1);
+            float b = buffer.get(2);
+            float a = buffer.get(3);
+        }
         blend = GL11.glIsEnabled(GL11.GL_BLEND);
         lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
         texture2D = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
         alphaTest = GL11.glIsEnabled(GL11.GL_ALPHA_TEST);
-        GL11.glGetInteger(GL11.GL_SHADE_MODEL, intBuffer);
-        shadeModel = intBuffer.get(0);
+        shadeModel = GL11.glGetInteger(GL11.GL_SHADE_MODEL);
         depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
         cullFace = GL11.glIsEnabled(GL11.GL_CULL_FACE);
     }

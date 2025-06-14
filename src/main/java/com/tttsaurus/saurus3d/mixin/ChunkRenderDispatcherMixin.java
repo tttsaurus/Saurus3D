@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.mixin.early;
+package com.tttsaurus.saurus3d.mixin;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tttsaurus.saurus3d.mcpatches.api.extra.IBufferBuilderExtra;

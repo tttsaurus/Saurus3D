@@ -1,10 +1,8 @@
 {
-  "package": "com.tttsaurus.saurus3d.mixin.early",
-  "refmap": "mixins.saurus3d.refmap.json",
-  "target": "@env(DEFAULT)",
-  "minVersion": "0.8",
+  "required": true,
+  "package": "com.tttsaurus.saurus3d.mixin",
   "compatibilityLevel": "JAVA_8",
-  "mixins": [],
+  "target": "@env(DEFAULT)",
   "client": [
     "BufferBuilderMixin",
     "ChunkRenderDispatcherMixin",
@@ -15,5 +13,8 @@
     "TextureMapMixin",
     "VertexBufferMixin"
   ],
-  "server": []
+  "mixins": [],
+  "server": [],
+  "setSourceFile": true,
+  "minVersion": "0.8.7"
 }

@@ -3,14 +3,11 @@ package com.tttsaurus.saurus3d;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.jetbrains.annotations.Nullable;
-import zone.rong.mixinbooter.IEarlyMixinLoader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-@IFMLLoadingPlugin.Name(Tags.MODNAME + " Core")
+@IFMLLoadingPlugin.Name(Reference.MOD_NAME + " Core")
 @IFMLLoadingPlugin.MCVersion(ForgeVersion.mcVersion)
-public class Saurus3DCoremod implements IFMLLoadingPlugin, IEarlyMixinLoader
+public class Saurus3DCoremod implements IFMLLoadingPlugin
 {
     @Override
     public String[] getASMTransformerClass()
@@ -40,15 +37,5 @@ public class Saurus3DCoremod implements IFMLLoadingPlugin, IEarlyMixinLoader
     public String getAccessTransformerClass()
     {
         return null;
-    }
-
-    @Override
-    public List<String> getMixinConfigs()
-    {
-        List<String> list = new ArrayList<>();
-
-        list.add("mixins.saurus3d.early.json");
-
-        return list;
     }
 }

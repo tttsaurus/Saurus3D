@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.mixin.early;
+package com.tttsaurus.saurus3d.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

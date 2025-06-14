@@ -299,11 +299,11 @@ public class ShaderProgram extends GLDisposable
             if (value instanceof FloatBuffer buffer)
             {
                 if (type.getSymbol().equals(UniformType.SYMBOL_MAT2))
-                    GL20.glUniformMatrix2(loc, false, buffer);
+                    GL20.glUniformMatrix2fv(loc, false, buffer);
                 else if (type.getSymbol().equals(UniformType.SYMBOL_MAT3))
-                    GL20.glUniformMatrix3(loc, false, buffer);
+                    GL20.glUniformMatrix3fv(loc, false, buffer);
                 else if (type.getSymbol().equals(UniformType.SYMBOL_MAT4))
-                    GL20.glUniformMatrix4(loc, false, buffer);
+                    GL20.glUniformMatrix4fv(loc, false, buffer);
             }
         }
         else if (type.getKind() == UniformTypeKind.SAMPLER)

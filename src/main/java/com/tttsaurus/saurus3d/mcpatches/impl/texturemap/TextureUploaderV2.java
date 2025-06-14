@@ -1,6 +1,5 @@
 package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
-import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.buffer.BufferUploadHint;
 import com.tttsaurus.saurus3d.common.core.buffer.MapBufferAccessBit;
 import com.tttsaurus.saurus3d.common.core.buffer.PBO;
@@ -8,7 +7,6 @@ import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
 import net.minecraft.client.renderer.GlStateManager;
-import org.apache.commons.lang3.time.StopWatch;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL15;

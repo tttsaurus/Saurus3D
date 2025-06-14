@@ -13,16 +13,17 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.GLCapabilities;
 
 @Mod(
-        modid = Tags.MODID,
-        version = Tags.VERSION,
-        name = Tags.MODNAME,
+        modid = Reference.MOD_ID,
+        version = Reference.VERSION,
+        name = Reference.MOD_NAME,
         acceptedMinecraftVersions = "[1.12.2]",
         dependencies = "required-after:mixinbooter@[10.0,)")
 public class Saurus3D
 {
-    public static final Logger LOGGER = LogManager.getLogger(Tags.MODNAME);
+    public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_NAME);
 
     @SidedProxy(
             clientSide = "com.tttsaurus.saurus3d.proxy.ClientProxy",
@@ -30,7 +31,7 @@ public class Saurus3D
     private static CommonProxy proxy;
 
     public static ASMDataTable asmDataTable;
-
+    public static GLCapabilities glCap;
     private static Boolean isCleanroom = null;
 
     public static boolean isCleanroom()

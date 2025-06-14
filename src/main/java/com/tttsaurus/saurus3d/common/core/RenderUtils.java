@@ -6,8 +6,8 @@ import com.tttsaurus.saurus3d.common.core.reflection.AccessorUnreflector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
-import org.lwjgl.util.vector.Vector2f;
-import org.lwjgl.util.vector.Vector3f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import java.nio.FloatBuffer;
 
 public class RenderUtils

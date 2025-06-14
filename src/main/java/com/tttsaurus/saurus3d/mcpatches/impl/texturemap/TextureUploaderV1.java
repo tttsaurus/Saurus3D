@@ -1,6 +1,5 @@
 package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
-import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
 import net.minecraft.client.renderer.GlStateManager;
