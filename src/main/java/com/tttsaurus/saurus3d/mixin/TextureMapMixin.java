@@ -45,9 +45,6 @@ public class TextureMapMixin
     @Unique
     private ExecutorService saurus3D$executor;
 
-    @Unique
-    private GLDisposable saurus3D$executorDisposer;
-
     @Shadow
     @Final
     protected List<TextureAtlasSprite> listAnimatedSprites;
@@ -124,34 +121,30 @@ public class TextureMapMixin
                 Saurus3D.LOGGER.info(builder.toString());
             }
 
-            if (saurus3D$executor != null)
+            if (saurus3D$executor == null)
             {
-                saurus3D$executorDisposer.dispose();
-                GLResourceManager.removeDisposable(saurus3D$executorDisposer);
-            }
-
-            ForkJoinPool.ForkJoinWorkerThreadFactory factory = pool ->
-            {
-                ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-                worker.setName("Saurus3D TextureMergePool-" + worker.getPoolIndex());
-                return worker;
-            };
-
-            saurus3D$executor = new ForkJoinPool(
-                    Runtime.getRuntime().availableProcessors(),
-                    factory,
-                    null,
-                    true);
-
-            saurus3D$executorDisposer = new GLDisposable()
-            {
-                @Override
-                public void dispose()
+                ForkJoinPool.ForkJoinWorkerThreadFactory factory = pool ->
                 {
-                    saurus3D$executor.shutdown();
-                }
-            };
-            GLResourceManager.addDisposable(saurus3D$executorDisposer);
+                    ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                    worker.setName("Saurus3D TextureMergePool-" + worker.getPoolIndex());
+                    return worker;
+                };
+
+                saurus3D$executor = new ForkJoinPool(
+                        Runtime.getRuntime().availableProcessors(),
+                        factory,
+                        null,
+                        true);
+
+                GLResourceManager.addDisposable(new GLDisposable()
+                {
+                    @Override
+                    public void dispose()
+                    {
+                        saurus3D$executor.shutdown();
+                    }
+                });
+            }
         }
     }
 
