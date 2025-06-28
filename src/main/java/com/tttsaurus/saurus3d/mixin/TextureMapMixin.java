@@ -4,6 +4,8 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.tttsaurus.saurus3d.Saurus3D;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLDisposable;
+import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.config.Saurus3DMCPatchesConfig;
 import com.tttsaurus.saurus3d.mcpatches.api.extra.ITextureAtlasSpriteExtra;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
@@ -27,6 +29,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
 
 @Mixin(TextureMap.class)
 public class TextureMapMixin
@@ -36,6 +41,12 @@ public class TextureMapMixin
 
     @Unique
     private List<ITextureUploader> saurus3D$textureUploaders;
+
+    @Unique
+    private ExecutorService saurus3D$executor;
+
+    @Unique
+    private GLDisposable saurus3D$executorDisposer;
 
     @Shadow
     @Final
@@ -112,7 +123,42 @@ public class TextureMapMixin
 
                 Saurus3D.LOGGER.info(builder.toString());
             }
+
+            if (saurus3D$executor != null)
+            {
+                saurus3D$executorDisposer.dispose();
+                GLResourceManager.removeDisposable(saurus3D$executorDisposer);
+            }
+
+            ForkJoinPool.ForkJoinWorkerThreadFactory factory = pool ->
+            {
+                ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                worker.setName("Saurus3D TextureMergePool-" + worker.getPoolIndex());
+                return worker;
+            };
+
+            saurus3D$executor = new ForkJoinPool(
+                    Runtime.getRuntime().availableProcessors(),
+                    factory,
+                    null,
+                    true);
+
+            saurus3D$executorDisposer = new GLDisposable()
+            {
+                @Override
+                public void dispose()
+                {
+                    saurus3D$executor.shutdown();
+                }
+            };
+            GLResourceManager.addDisposable(saurus3D$executorDisposer);
         }
+    }
+
+    @Inject(method = "updateAnimations", at = @At("HEAD"))
+    public void updateAnimations(CallbackInfo ci)
+    {
+
     }
 
     @WrapMethod(method = "updateAnimations")
@@ -143,7 +189,7 @@ public class TextureMapMixin
                     uploader.planTexUpload(i, plan.data[i], plan.rect);
             }
 
-            uploader.batchUpload(rect, setTexParam);
+            uploader.batchUpload(rect, setTexParam, saurus3D$executor);
             if (setTexParam) setTexParam = false;
 
             index++;

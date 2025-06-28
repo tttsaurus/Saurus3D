@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL21;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 public final class TextureUploaderV2 implements ITextureUploader
 {
@@ -191,7 +192,7 @@ public final class TextureUploaderV2 implements ITextureUploader
 
     private final Map<Integer, int[]> mergedDataContainer = new HashMap<>();
 
-    public void batchUpload(TexRect rect, boolean setTexParam)
+    public void batchUpload(TexRect rect, boolean setTexParam, Executor executor)
     {
         boolean mipmap = mipmapData.size() > 1;
 
@@ -226,7 +227,7 @@ public final class TextureUploaderV2 implements ITextureUploader
                 mergingProcesses.put(level, CompletableFuture.runAsync(() ->
                 {
                     TextureMerger.mergeTexs(merged, bigRect, rects, datas);
-                }));
+                }, executor));
             }
             else if (process.isDone())
                 mergedReady = true;
@@ -260,7 +261,7 @@ public final class TextureUploaderV2 implements ITextureUploader
                 mergingProcesses.put(level, CompletableFuture.runAsync(() ->
                 {
                     TextureMerger.mergeTexs(merged, bigRect, rects, datas);
-                }));
+                }, executor));
             }
 
             index++;

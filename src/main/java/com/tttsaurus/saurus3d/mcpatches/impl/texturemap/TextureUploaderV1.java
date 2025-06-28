@@ -10,6 +10,7 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 public final class TextureUploaderV1 implements ITextureUploader
 {
@@ -46,7 +47,7 @@ public final class TextureUploaderV1 implements ITextureUploader
 
     private final Map<Integer, int[]> mergedDataContainer = new HashMap<>();
 
-    public void batchUpload(TexRect rect, boolean setTexParam)
+    public void batchUpload(TexRect rect, boolean setTexParam, Executor executor)
     {
         boolean mipmap = mipmapData.size() > 1;
 
@@ -77,7 +78,7 @@ public final class TextureUploaderV1 implements ITextureUploader
                 mergingProcesses.put(level, CompletableFuture.runAsync(() ->
                 {
                     TextureMerger.mergeTexs(merged, bigRect, rects, datas);
-                }));
+                }, executor));
             }
             else if (process.isDone())
                 mergedReady = true;
@@ -99,7 +100,7 @@ public final class TextureUploaderV1 implements ITextureUploader
                 mergingProcesses.put(level, CompletableFuture.runAsync(() ->
                 {
                     TextureMerger.mergeTexs(merged, bigRect, rects, datas);
-                }));
+                }, executor));
             }
         }
 

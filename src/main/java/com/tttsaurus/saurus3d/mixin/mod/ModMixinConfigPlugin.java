@@ -32,12 +32,11 @@ public class ModMixinConfigPlugin implements IMixinConfigPlugin
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName)
     {
-//        return switch (mixinClassName.split("\\.")[5])
-//        {
-//            case "hei" -> Loader.isModLoaded("jei");
-//            default -> true;
-//        };
-        return true;
+        return switch (mixinClassName.split("\\.")[5])
+        {
+            case "hei" -> Loader.isModLoaded("jei");
+            default -> true;
+        };
     }
 
     @Override
