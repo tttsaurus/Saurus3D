@@ -15,30 +15,13 @@ A WIP general purpose render lib for Minecraft 1.12.2
 
 ### `TextureMap.updateAnimations()`
 
-***
-
-**Environment**: Forge + 26 mods installed<br>
+**Environment**: Cleanroom-0.3.7a + 210 mods installed<br>
 **Time**: running for 30 seconds<br>
-**Repeated for 5 times**
+**Repeated for 3 times**
 
-- Vanilla: `128ms`, `168ms`, `112ms`, `148ms`, `144ms`
-- Vanilla Avg: `140.0ms`
-- Saurus3D: `48ms`, `72ms`, `60ms`, `84ms`, `68ms`
-- Saurus3D Avg: `66.4ms`
+- Vanilla: `1284ms`, `1200ms`, `1252ms`
+- Vanilla Avg: `1245.3ms`
+- Saurus3D: `432ms`, `600ms`, `472ms`
+- Saurus3D Avg: `501.3ms`
 
-**Boost**: `140.0ms` -> `66.4ms` (↓52.6%, 2.1× faster)
-
-***
-
-**Environment**: Cleanroom + 209 mods installed<br>
-**Time**: running for 30 seconds<br>
-**Repeated for 5 times**
-
-- Vanilla: `724ms`, `832ms`, `872ms`, `976ms`, `936ms`
-- Vanilla Avg: `868.0ms`
-- Saurus3D: `824ms`, `696ms`, `812ms`, `796ms`, `772ms`
-- Saurus3D Avg: `780.0ms`
-
-**Boost**: `868.0ms` -> `780.0ms` (↓10.1%, 1.1× faster)
-
-***
+**Boost**: `1245.3ms` -> `501.3ms` (↓59.7%, 2.48× faster)
