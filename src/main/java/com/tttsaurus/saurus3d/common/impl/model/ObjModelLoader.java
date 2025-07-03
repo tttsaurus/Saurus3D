@@ -128,12 +128,12 @@ public class ObjModelLoader implements IModelLoader
                 .push(new Slot(Type.FLOAT, 3)));
 
         EBO ebo = new EBO();
-        ebo.setAutoRebindToOldEbo(true);
+        ebo.setAutoUnbind(true);
         ebo.setEboID(EBO.genEboID());
         ebo.directUpload(indices);
 
         VBO vbo = new VBO();
-        vbo.setAutoRebindToOldVbo(true);
+        vbo.setAutoUnbind(true);
         vbo.setVboID(VBO.genVboID());
         vbo.directUpload(vertexData);
 

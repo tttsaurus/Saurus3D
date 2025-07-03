@@ -22,9 +22,13 @@ public class EBO extends GLDisposable
     public int getEboSize() { return eboSize; }
     public int getIndicesLength() { return indicesLength; }
 
-    private boolean autoRebindToOldEbo = false;
-    public boolean isAutoRebindToOldEbo() { return autoRebindToOldEbo; }
-    public void setAutoRebindToOldEbo(boolean autoRebindToOldEbo) { this.autoRebindToOldEbo = autoRebindToOldEbo; }
+    private boolean autoUnbind = false;
+    public boolean isAutoUnbind() { return autoUnbind; }
+    public void setAutoUnbind(boolean autoUnbind) { this.autoUnbind = autoUnbind; }
+
+    private boolean autoBind = true;
+    public boolean isAutoBind() { return autoBind; }
+    public void setAutoBind(boolean autoBind) { this.autoBind = autoBind; }
 
     int prevEbo = 0;
     public void storePrevEbo()
@@ -36,21 +40,21 @@ public class EBO extends GLDisposable
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
     }
 
-    public void updateSize()
+    public void fetchSize()
     {
         if (eboID == null)
             throw new GLIllegalBufferIDException("Must set an EBO ID first.");
 
         int prevEbo = 0;
-        if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+        if (autoUnbind) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
         eboSize = GL15.glGetBufferParameteri(GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE);
         indicesLength = eboSize / 4;
         if (eboSize % 4 != 0)
             throw new GLIllegalStateException("Size must be a multiple of 4 because they are indices.");
 
-        if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
     }
 
     //<editor-fold desc="id">
@@ -64,15 +68,15 @@ public class EBO extends GLDisposable
         this.eboID = eboID;
 
         int prevEbo = 0;
-        if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+        if (autoUnbind) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
         eboSize = GL15.glGetBufferParameteri(GL15.GL_ELEMENT_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE);
         indicesLength = eboSize / 4;
         if (eboSize % 4 != 0)
             throw new GLIllegalStateException("Size must be a multiple of 4 because they are indices.");
 
-        if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
 
         GLResourceManager.addDisposable(this);
     }
@@ -109,10 +113,10 @@ public class EBO extends GLDisposable
             throw new GLIllegalStateException("Size, which is byteBuffer.remaining(), must be a multiple of 4 because they are indices.");
 
         int prevEbo = 0;
-        if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
+        if (autoUnbind) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, byteBuffer, GL15.GL_STATIC_DRAW);
-        if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
 
         eboSize = byteBuffer.remaining();
         indicesLength = eboSize / 4;
@@ -127,10 +131,10 @@ public class EBO extends GLDisposable
             throw new GLIllegalStateException("Size must be a multiple of 4 because they are indices.");
 
         int prevEbo = 0;
-        if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
+        if (autoUnbind) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, size, hint.glValue);
-        if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
 
         eboSize = size;
         indicesLength = eboSize / 4;
@@ -145,10 +149,10 @@ public class EBO extends GLDisposable
             throw new GLOverflowException("Allocated EBO size must be greater than or equal to offset + byteBuffer.remaining().");
 
         int prevEbo = 0;
-        if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
+        if (autoUnbind) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
         GL15.glBufferSubData(GL15.GL_ELEMENT_ARRAY_BUFFER, offset, byteBuffer);
-        if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
     }
 
     public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, ByteBuffer byteBuffer)
@@ -169,9 +173,9 @@ public class EBO extends GLDisposable
             throw new GLOverflowException("Parameter mappingSize must be greater than or equal to offset + byteBuffer.remaining().");
 
         int prevEbo = 0;
-        if (autoRebindToOldEbo) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
+        if (autoUnbind) prevEbo = GL11.glGetInteger(GL15.GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
-        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, eboID.id);
 
         int access = 0;
         for (MapBufferAccessBit bit: accessBits)
@@ -193,7 +197,7 @@ public class EBO extends GLDisposable
         else
             throw new GLMapBufferException("Failed to map buffer.");
 
-        if (autoRebindToOldEbo) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, prevEbo);
     }
     //</editor-fold>
 

@@ -51,11 +51,11 @@ public class ChunkRenderDispatcherMixin
         {
             int vboID = ((IVertexBufferExtra)p_188245_3_.getVertexBufferByLayer(layerIndex)).getBufferID();
             VBO vbo = new VBO();
-            vbo.setAutoRebindToOldVbo(true);
+            vbo.setAutoUnbind(true);
             vbo.setVboID(new BufferID(vboID, BufferType.VBO));
 
             EBO ebo = new EBO();
-            ebo.setAutoRebindToOldEbo(true);
+            ebo.setAutoUnbind(true);
             ebo.setEboID(EBO.genEboID());
 
             mesh = new Mesh(MyVboRenderList.BLOCK_ATTRIBUTE_LAYOUT, ebo, vbo);

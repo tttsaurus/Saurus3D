@@ -20,9 +20,13 @@ public class VBO extends GLDisposable
 
     public int getVboSize() { return vboSize; }
 
-    private boolean autoRebindToOldVbo = false;
-    public boolean isAutoRebindToOldVbo() { return autoRebindToOldVbo; }
-    public void setAutoRebindToOldVbo(boolean autoRebindToOldVbo) { this.autoRebindToOldVbo = autoRebindToOldVbo; }
+    private boolean autoUnbind = false;
+    public boolean isAutoUnbind() { return autoUnbind; }
+    public void setAutoUnbind(boolean autoUnbind) { this.autoUnbind = autoUnbind; }
+
+    private boolean autoBind = true;
+    public boolean isAutoBind() { return autoBind; }
+    public void setAutoBind(boolean autoBind) { this.autoBind = autoBind; }
 
     int prevVbo = 0;
     public void storePrevVbo()
@@ -34,16 +38,16 @@ public class VBO extends GLDisposable
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
     }
 
-    public void updateSize()
+    public void fetchSize()
     {
         if (vboID == null)
             throw new GLIllegalBufferIDException("Must set a VBO ID first.");
 
         int prevVbo = 0;
-        if (autoRebindToOldVbo) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+        if (autoUnbind) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
         vboSize = GL15.glGetBufferParameteri(GL15.GL_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE);
-        if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
     }
 
     //<editor-fold desc="id">
@@ -57,10 +61,10 @@ public class VBO extends GLDisposable
         this.vboID = vboID;
 
         int prevVbo = 0;
-        if (autoRebindToOldVbo) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+        if (autoUnbind) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
         vboSize = GL15.glGetBufferParameteri(GL15.GL_ARRAY_BUFFER, GL15.GL_BUFFER_SIZE);
-        if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
 
         GLResourceManager.addDisposable(this);
     }
@@ -95,10 +99,10 @@ public class VBO extends GLDisposable
             throw new GLIllegalBufferIDException("Must set a VBO ID first.");
 
         int prevVbo = 0;
-        if (autoRebindToOldVbo) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+        if (autoUnbind) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, byteBuffer, GL15.GL_STATIC_DRAW);
-        if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
 
         vboSize = byteBuffer.remaining();
     }
@@ -110,10 +114,10 @@ public class VBO extends GLDisposable
             throw new GLIllegalStateException("Cannot have negative size.");
 
         int prevVbo = 0;
-        if (autoRebindToOldVbo) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+        if (autoUnbind) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, size, hint.glValue);
-        if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
 
         vboSize = size;
     }
@@ -127,10 +131,10 @@ public class VBO extends GLDisposable
             throw new GLOverflowException("Allocated VBO size must be greater than or equal to offset + byteBuffer.remaining().");
 
         int prevVbo = 0;
-        if (autoRebindToOldVbo) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+        if (autoUnbind) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
         GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, offset, byteBuffer);
-        if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
     }
 
     public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, ByteBuffer byteBuffer)
@@ -151,9 +155,9 @@ public class VBO extends GLDisposable
             throw new GLOverflowException("Parameter mappingSize must be greater than or equal to offset + byteBuffer.remaining().");
 
         int prevVbo = 0;
-        if (autoRebindToOldVbo) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        if (autoUnbind) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
 
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
 
         int access = 0;
         for (MapBufferAccessBit bit: accessBits)
@@ -175,7 +179,7 @@ public class VBO extends GLDisposable
         else
             throw new GLMapBufferException("Failed to map buffer.");
 
-        if (autoRebindToOldVbo) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
     }
     //</editor-fold>
 

@@ -21,9 +21,13 @@ public class PBO extends GLDisposable
 
     public int getPboSize() { return pboSize; }
 
-    private boolean autoRebindToOldPbo = false;
-    public boolean isAutoRebindToOldPbo() { return autoRebindToOldPbo; }
-    public void setAutoRebindToOldPbo(boolean autoRebindToOldPbo) { this.autoRebindToOldPbo = autoRebindToOldPbo; }
+    private boolean autoUnbind = false;
+    public boolean isAutoUnbind() { return autoUnbind; }
+    public void setAutoUnbind(boolean autoUnbind) { this.autoUnbind = autoUnbind; }
+
+    private boolean autoBind = true;
+    public boolean isAutoBind() { return autoBind; }
+    public void setAutoBind(boolean autoBind) { this.autoBind = autoBind; }
 
     int prevPbo = 0;
     public void storePrevPbo()
@@ -35,16 +39,16 @@ public class PBO extends GLDisposable
         GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
     }
 
-    public void updateSize()
+    public void fetchSize()
     {
         if (pboID == null)
             throw new GLIllegalBufferIDException("Must set a PBO ID first.");
 
         int prevPbo = 0;
-        if (autoRebindToOldPbo) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
-        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
+        if (autoUnbind) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
         pboSize = GL15.glGetBufferParameteri(GL21.GL_PIXEL_UNPACK_BUFFER, GL15.GL_BUFFER_SIZE);
-        if (autoRebindToOldPbo) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
+        if (autoUnbind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
     }
 
     //<editor-fold desc="id">
@@ -58,10 +62,10 @@ public class PBO extends GLDisposable
         this.pboID = pboID;
 
         int prevPbo = 0;
-        if (autoRebindToOldPbo) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
-        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
+        if (autoUnbind) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
         pboSize = GL15.glGetBufferParameteri(GL21.GL_PIXEL_UNPACK_BUFFER, GL15.GL_BUFFER_SIZE);
-        if (autoRebindToOldPbo) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
+        if (autoUnbind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
 
         GLResourceManager.addDisposable(this);
     }
@@ -96,10 +100,10 @@ public class PBO extends GLDisposable
             throw new GLIllegalBufferIDException("Must set a PBO ID first.");
 
         int prevPbo = 0;
-        if (autoRebindToOldPbo) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
-        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
+        if (autoUnbind) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
         GL15.glBufferData(GL21.GL_PIXEL_UNPACK_BUFFER, byteBuffer, GL15.GL_STATIC_DRAW);
-        if (autoRebindToOldPbo) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
+        if (autoUnbind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
 
         pboSize = byteBuffer.remaining();
     }
@@ -111,10 +115,10 @@ public class PBO extends GLDisposable
             throw new GLIllegalStateException("Cannot have negative size.");
 
         int prevPbo = 0;
-        if (autoRebindToOldPbo) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
-        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
+        if (autoUnbind) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
         GL15.glBufferData(GL21.GL_PIXEL_UNPACK_BUFFER, size, hint.glValue);
-        if (autoRebindToOldPbo) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
+        if (autoUnbind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
 
         pboSize = size;
     }
@@ -128,10 +132,10 @@ public class PBO extends GLDisposable
             throw new GLOverflowException("Allocated PBO size must be greater than or equal to offset + byteBuffer.remaining().");
 
         int prevPbo = 0;
-        if (autoRebindToOldPbo) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
-        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
+        if (autoUnbind) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
         GL15.glBufferSubData(GL21.GL_PIXEL_UNPACK_BUFFER, offset, byteBuffer);
-        if (autoRebindToOldPbo) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
+        if (autoUnbind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
     }
 
     public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, ByteBuffer byteBuffer)
@@ -152,9 +156,9 @@ public class PBO extends GLDisposable
             throw new GLOverflowException("Parameter mappingSize must be greater than or equal to offset + byteBuffer.remaining().");
 
         int prevPbo = 0;
-        if (autoRebindToOldPbo) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
+        if (autoUnbind) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
 
-        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
+        if (autoBind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
 
         int access = 0;
         for (MapBufferAccessBit bit: accessBits)
@@ -176,7 +180,7 @@ public class PBO extends GLDisposable
         else
             throw new GLMapBufferException("Failed to map buffer.");
 
-        if (autoRebindToOldPbo) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
+        if (autoUnbind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
     }
     public void uploadByMappedBuffer(int mappingOffset, int mappingSize, int offset, int[] data)
     {
@@ -196,9 +200,9 @@ public class PBO extends GLDisposable
             throw new GLOverflowException("Parameter mappingSize must be greater than or equal to offset + data.length * Integer.BYTES.");
 
         int prevPbo = 0;
-        if (autoRebindToOldPbo) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
+        if (autoUnbind) prevPbo = GL11.glGetInteger(GL21.GL_PIXEL_UNPACK_BUFFER_BINDING);
 
-        GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
+        if (autoBind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboID.id);
 
         int access = 0;
         for (MapBufferAccessBit bit: accessBits)
@@ -221,7 +225,7 @@ public class PBO extends GLDisposable
         else
             throw new GLMapBufferException("Failed to map buffer.");
 
-        if (autoRebindToOldPbo) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
+        if (autoUnbind) GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, prevPbo);
     }
     //</editor-fold>
 
