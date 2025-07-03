@@ -183,7 +183,7 @@ public class TextureMapMixin
             for (TextureAtlasSprite sprite: sprites)
             {
                 ITextureAtlasSpriteExtra spriteExtra = ((ITextureAtlasSpriteExtra)sprite);
-                TexUpdatePlan plan = spriteExtra.updateAnimationV2();
+                TexUpdatePlan plan = spriteExtra.updateAnimationV2(saurus3D$executor);
                 for (int i = 0; i < plan.data.length; i++)
                     uploader.planTexUpload(i, plan.data[i], plan.rect);
             }
