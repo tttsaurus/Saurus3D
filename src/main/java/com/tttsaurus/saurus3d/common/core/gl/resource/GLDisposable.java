@@ -2,6 +2,16 @@ package com.tttsaurus.saurus3d.common.core.gl.resource;
 
 public abstract class GLDisposable implements Comparable<GLDisposable>
 {
+    public final String getName()
+    {
+        return getResourceType() + "@" + this.hashCode();
+    }
+
+    public String getResourceType()
+    {
+        return this.getClass().getSimpleName();
+    }
+
     // bigger first
     public int priority() { return 0; }
 

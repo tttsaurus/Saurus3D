@@ -126,7 +126,7 @@ public class TextureMapMixin
                 ForkJoinPool.ForkJoinWorkerThreadFactory factory = pool ->
                 {
                     ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-                    worker.setName("Saurus3D TextureMergePool-" + worker.getPoolIndex());
+                    worker.setName("Saurus3D TextureMap Common Pool-" + worker.getPoolIndex());
                     return worker;
                 };
 
@@ -142,6 +142,12 @@ public class TextureMapMixin
                     public void dispose()
                     {
                         saurus3D$executor.shutdown();
+                    }
+
+                    @Override
+                    public String getResourceType()
+                    {
+                        return "Saurus3D TextureMap Common Pool";
                     }
                 });
             }

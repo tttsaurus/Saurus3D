@@ -23,7 +23,7 @@ public final class GLResourceManager
         while (!disposables.isEmpty())
         {
             GLDisposable disposable = disposables.poll();
-            Saurus3D.LOGGER.info("Disposing " + disposable.getClass().getSimpleName());
+            Saurus3D.LOGGER.info("Disposing " + disposable.getName());
             disposable.dispose();
             if (!KHRDebugManager.isEnable()) GLDebug.checkError();
         }
