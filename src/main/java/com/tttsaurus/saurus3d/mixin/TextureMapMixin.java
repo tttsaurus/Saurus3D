@@ -47,7 +47,7 @@ public class TextureMapMixin
 
     @Shadow
     @Final
-    protected List<TextureAtlasSprite> listAnimatedSprites;
+    private List<TextureAtlasSprite> listAnimatedSprites;
 
     @Inject(method = "loadTextureAtlas", at = @At("RETURN"))
     private void afterLoadTextureAtlas(IResourceManager resourceManager, CallbackInfo ci)
