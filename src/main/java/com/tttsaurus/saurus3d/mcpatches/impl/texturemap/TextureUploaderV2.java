@@ -95,6 +95,10 @@ public final class TextureUploaderV2 implements ITextureUploader
 
     public void planTexUpload(int level, int[] data, TexRect rect)
     {
+        List<int[]> d = null;
+        List<TexRect> r = null;
+
+        //<editor-fold desc="treemap cache">
         boolean putMipmapData;
         if (mipmapDataCache0 != null && level == 0)
             putMipmapData = false;
@@ -110,7 +114,14 @@ public final class TextureUploaderV2 implements ITextureUploader
             putMipmapData = !mipmapData.containsKey(level);
 
         if (putMipmapData)
-            mipmapData.put(level, new ArrayList<>());
+        {
+            d = mipmapData.put(level, new ArrayList<>());
+            if (level == 0) mipmapDataCache0 = d;
+            if (level == 1) mipmapDataCache1 = d;
+            if (level == 2) mipmapDataCache2 = d;
+            if (level == 3) mipmapDataCache3 = d;
+            if (level == 4) mipmapDataCache4 = d;
+        }
 
         boolean putMipmapRect;
         if (mipmapRectCache0 != null && level == 0)
@@ -127,64 +138,72 @@ public final class TextureUploaderV2 implements ITextureUploader
             putMipmapRect = !mipmapRect.containsKey(level);
 
         if (putMipmapRect)
-            mipmapRect.put(level, new ArrayList<>());
-
-        List<int[]> d;
-        List<TexRect> r;
-
-        switch (level)
         {
-            case 0 ->
+            r = mipmapRect.put(level, new ArrayList<>());
+            if (level == 0) mipmapRectCache0 = r;
+            if (level == 1) mipmapRectCache1 = r;
+            if (level == 2) mipmapRectCache2 = r;
+            if (level == 3) mipmapRectCache3 = r;
+            if (level == 4) mipmapRectCache4 = r;
+        }
+
+        if (d == null || r == null)
+        {
+            switch (level)
             {
-                if (mipmapDataCache0 == null)
-                    mipmapDataCache0 = mipmapData.get(level);
-                d = mipmapDataCache0;
-                if (mipmapRectCache0 == null)
-                    mipmapRectCache0 = mipmapRect.get(level);
-                r = mipmapRectCache0;
-            }
-            case 1 ->
-            {
-                if (mipmapDataCache1 == null)
-                    mipmapDataCache1 = mipmapData.get(level);
-                d = mipmapDataCache1;
-                if (mipmapRectCache1 == null)
-                    mipmapRectCache1 = mipmapRect.get(level);
-                r = mipmapRectCache1;
-            }
-            case 2 ->
-            {
-                if (mipmapDataCache2 == null)
-                    mipmapDataCache2 = mipmapData.get(level);
-                d = mipmapDataCache2;
-                if (mipmapRectCache2 == null)
-                    mipmapRectCache2 = mipmapRect.get(level);
-                r = mipmapRectCache2;
-            }
-            case 3 ->
-            {
-                if (mipmapDataCache3 == null)
-                    mipmapDataCache3 = mipmapData.get(level);
-                d = mipmapDataCache3;
-                if (mipmapRectCache3 == null)
-                    mipmapRectCache3 = mipmapRect.get(level);
-                r = mipmapRectCache3;
-            }
-            case 4 ->
-            {
-                if (mipmapDataCache4 == null)
-                    mipmapDataCache4 = mipmapData.get(level);
-                d = mipmapDataCache4;
-                if (mipmapRectCache4 == null)
-                    mipmapRectCache4 = mipmapRect.get(level);
-                r = mipmapRectCache4;
-            }
-            default ->
-            {
-                d = mipmapData.get(level);
-                r = mipmapRect.get(level);
+                case 0 ->
+                {
+                    if (mipmapDataCache0 == null)
+                        mipmapDataCache0 = mipmapData.get(level);
+                    d = mipmapDataCache0;
+                    if (mipmapRectCache0 == null)
+                        mipmapRectCache0 = mipmapRect.get(level);
+                    r = mipmapRectCache0;
+                }
+                case 1 ->
+                {
+                    if (mipmapDataCache1 == null)
+                        mipmapDataCache1 = mipmapData.get(level);
+                    d = mipmapDataCache1;
+                    if (mipmapRectCache1 == null)
+                        mipmapRectCache1 = mipmapRect.get(level);
+                    r = mipmapRectCache1;
+                }
+                case 2 ->
+                {
+                    if (mipmapDataCache2 == null)
+                        mipmapDataCache2 = mipmapData.get(level);
+                    d = mipmapDataCache2;
+                    if (mipmapRectCache2 == null)
+                        mipmapRectCache2 = mipmapRect.get(level);
+                    r = mipmapRectCache2;
+                }
+                case 3 ->
+                {
+                    if (mipmapDataCache3 == null)
+                        mipmapDataCache3 = mipmapData.get(level);
+                    d = mipmapDataCache3;
+                    if (mipmapRectCache3 == null)
+                        mipmapRectCache3 = mipmapRect.get(level);
+                    r = mipmapRectCache3;
+                }
+                case 4 ->
+                {
+                    if (mipmapDataCache4 == null)
+                        mipmapDataCache4 = mipmapData.get(level);
+                    d = mipmapDataCache4;
+                    if (mipmapRectCache4 == null)
+                        mipmapRectCache4 = mipmapRect.get(level);
+                    r = mipmapRectCache4;
+                }
+                default ->
+                {
+                    d = mipmapData.get(level);
+                    r = mipmapRect.get(level);
+                }
             }
         }
+        //</editor-fold>
 
         d.add(data);
         r.add(new TexRect(rect.x >> level, rect.y >> level, rect.width >> level, rect.height >> level));
