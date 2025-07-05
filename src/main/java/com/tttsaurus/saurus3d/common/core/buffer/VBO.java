@@ -1,5 +1,9 @@
 package com.tttsaurus.saurus3d.common.core.buffer;
 
+import com.tttsaurus.saurus3d.common.core.buffer.meta.BufferID;
+import com.tttsaurus.saurus3d.common.core.buffer.meta.BufferType;
+import com.tttsaurus.saurus3d.common.core.buffer.meta.BufferUploadHint;
+import com.tttsaurus.saurus3d.common.core.buffer.meta.MapBufferAccessBit;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLIllegalStateException;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLMapBufferException;
 import com.tttsaurus.saurus3d.common.core.gl.exception.GLOverflowException;
@@ -11,9 +15,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryStack;
-
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class VBO extends GLDisposable

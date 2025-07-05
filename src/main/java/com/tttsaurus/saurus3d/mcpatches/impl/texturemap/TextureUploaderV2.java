@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
-import com.tttsaurus.saurus3d.common.core.buffer.BufferUploadHint;
-import com.tttsaurus.saurus3d.common.core.buffer.MapBufferAccessBit;
+import com.tttsaurus.saurus3d.common.core.buffer.meta.BufferUploadHint;
+import com.tttsaurus.saurus3d.common.core.buffer.meta.MapBufferAccessBit;
 import com.tttsaurus.saurus3d.common.core.buffer.UnpackPBO;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
@@ -262,7 +262,7 @@ public final class TextureUploaderV2 implements ITextureUploader
                 else
                 {
                     UnpackPBO pboToUse = pbos.get(0);
-                    GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboToUse.getPboID().getID());
+                    GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboToUse.getPboID().id);
                     GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, 0);
                     rotateLeftByOne(pbos);
                     pboToUpload = pbos.get(bufferingNum - 1);

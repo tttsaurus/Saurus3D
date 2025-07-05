@@ -89,7 +89,7 @@ public class AttributeLayout
         Iterator<Stride> strideIter = strideStack.descendingIterator();
         while (strideIter.hasNext())
         {
-            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbos[strideIndex].getVboID().getID());
+            GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbos[strideIndex].getVboID().id);
             Stride stride = strideIter.next();
 
             int usedSlotSize = 0;

@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.buffer;
+package com.tttsaurus.saurus3d.common.core.buffer.meta;
 
 import org.lwjgl.opengl.GL15;
 
