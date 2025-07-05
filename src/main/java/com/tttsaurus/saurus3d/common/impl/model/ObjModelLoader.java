@@ -8,7 +8,7 @@ import com.tttsaurus.saurus3d.common.core.buffer.EBO;
 import com.tttsaurus.saurus3d.common.core.buffer.VBO;
 import com.tttsaurus.saurus3d.common.core.model.IModelLoader;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
-import com.tttsaurus.saurus3d.common.core.reader.RlReaderUtils;
+import com.tttsaurus.saurus3d.common.core.commonutils.RLReaderUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,7 +19,7 @@ public class ObjModelLoader implements IModelLoader
     @Override
     public Mesh load(String rl)
     {
-        String raw = RlReaderUtils.read(rl, true);
+        String raw = RLReaderUtils.read(rl, true);
         if (raw.isEmpty()) return null;
 
         Pattern vertexPattern = Pattern.compile("^v\\s+([-+]?[0-9]*\\.?[0-9]+)\\s+([-+]?[0-9]*\\.?[0-9]+)\\s+([-+]?[0-9]*\\.?[0-9]+)$");

@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.mixin;
 
 import com.tttsaurus.saurus3d.Saurus3D;
-import com.tttsaurus.saurus3d.common.core.RenderUtils;
+import com.tttsaurus.saurus3d.common.core.commonutils.MinecraftRenderUtils;
 import com.tttsaurus.saurus3d.common.core.function.Action;
 import com.tttsaurus.saurus3d.common.core.gl.debug.KHRDebugManager;
 import com.tttsaurus.saurus3d.common.core.gl.version.GLVersionHelper;
@@ -94,42 +94,42 @@ public class MinecraftMixin
         //</editor-fold>
 
         //<editor-fold desc="init RenderUtils">
-        Saurus3D.LOGGER.info("Start initializing RenderUtils.");
+        Saurus3D.LOGGER.info("Start initializing MinecraftRenderUtils.");
         boolean successful = true;
         try
         {
-            RenderUtils.getModelViewMatrix();
-            Saurus3D.LOGGER.info("RenderUtils.getModelViewMatrix() is ready.");
+            MinecraftRenderUtils.getModelViewMatrix();
+            Saurus3D.LOGGER.info("MinecraftRenderUtils.getModelViewMatrix() is ready.");
         }
         catch (Throwable throwable)
         {
             successful = false;
-            Saurus3D.LOGGER.warn("RenderUtils.getModelViewMatrix() is not ready.");
+            Saurus3D.LOGGER.warn("MinecraftRenderUtils.getModelViewMatrix() is not ready.");
             Saurus3D.LOGGER.throwing(throwable);
         }
         try
         {
-            RenderUtils.getProjectionMatrix();
-            Saurus3D.LOGGER.info("RenderUtils.getProjectionMatrix() is ready.");
+            MinecraftRenderUtils.getProjectionMatrix();
+            Saurus3D.LOGGER.info("MinecraftRenderUtils.getProjectionMatrix() is ready.");
         }
         catch (Throwable throwable)
         {
             successful = false;
-            Saurus3D.LOGGER.warn("RenderUtils.getProjectionMatrix() is not ready.");
+            Saurus3D.LOGGER.warn("MinecraftRenderUtils.getProjectionMatrix() is not ready.");
             Saurus3D.LOGGER.throwing(throwable);
         }
         try
         {
-            RenderUtils.getPartialTick();
-            Saurus3D.LOGGER.info("RenderUtils.getPartialTick() is ready.");
+            MinecraftRenderUtils.getPartialTick();
+            Saurus3D.LOGGER.info("MinecraftRenderUtils.getPartialTick() is ready.");
         }
         catch (Throwable throwable)
         {
             successful = false;
-            Saurus3D.LOGGER.warn("RenderUtils.getPartialTick() is not ready.");
+            Saurus3D.LOGGER.warn("MinecraftRenderUtils.getPartialTick() is not ready.");
             Saurus3D.LOGGER.throwing(throwable);
         }
-        Saurus3D.LOGGER.info("Finished initializing RenderUtils. The module is " + (successful ? "ready." : "not ready."));
+        Saurus3D.LOGGER.info("Finished initializing MinecraftRenderUtils. The module is " + (successful ? "READY." : "NOT READY."));
         //</editor-fold>
     }
 

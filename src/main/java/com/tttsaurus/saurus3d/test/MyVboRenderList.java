@@ -1,7 +1,7 @@
 package com.tttsaurus.saurus3d.test;
 
 import com.tttsaurus.saurus3d.Saurus3D;
-import com.tttsaurus.saurus3d.common.core.RenderUtils;
+import com.tttsaurus.saurus3d.common.core.commonutils.MinecraftRenderUtils;
 import com.tttsaurus.saurus3d.mcpatches.api.extra.IRenderChunkExtra;
 import com.tttsaurus.saurus3d.common.core.mesh.Mesh;
 import com.tttsaurus.saurus3d.common.core.mesh.attribute.AttributeLayout;
@@ -44,11 +44,11 @@ public class MyVboRenderList extends ChunkRenderContainer
             }
 
             program.use();
-            program.setUniform("modelView", RenderUtils.getModelViewMatrix());
-            program.setUniform("projection", RenderUtils.getProjectionMatrix());
+            program.setUniform("modelView", MinecraftRenderUtils.getModelViewMatrix());
+            program.setUniform("projection", MinecraftRenderUtils.getProjectionMatrix());
             program.setUniform("tex", 0);
             program.setUniform("lightmap", 1);
-            program.setUniform("camPos", RenderUtils.getCameraPos().x, RenderUtils.getCameraPos().y, RenderUtils.getCameraPos().z);
+            program.setUniform("camPos", MinecraftRenderUtils.getCameraPos().x, MinecraftRenderUtils.getCameraPos().y, MinecraftRenderUtils.getCameraPos().z);
             program.unuse();
 
             for (RenderChunk renderChunk : renderChunks)

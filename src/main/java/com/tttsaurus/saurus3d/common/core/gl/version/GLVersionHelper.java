@@ -46,7 +46,7 @@ public final class GLVersionHelper
             rawGLVersion = "";
 
         if (rawGLVersion.isEmpty() || majorGLVersion == -1 || minorGLVersion == -1)
-            throw new RuntimeException("GLVersionHelper failed to parse GL version");
+            throw new RuntimeException("GLVersionHelper failed to parse GL version.");
     }
 
     public static boolean supported(int major, int minor)

@@ -1,6 +1,6 @@
 package com.tttsaurus.saurus3d.common.core.shader;
 
-import com.tttsaurus.saurus3d.common.core.reader.RlReaderUtils;
+import com.tttsaurus.saurus3d.common.core.commonutils.RLReaderUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
@@ -23,7 +23,7 @@ public final class ShaderManager
 
     public static Shader loadShader(String rl, Shader.ShaderType shaderType)
     {
-        String raw = RlReaderUtils.read(rl, true);
+        String raw = RLReaderUtils.read(rl, true);
         if (raw.isEmpty()) return null;
 
         String hash = hashShader(raw + shaderType.toString());

@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core.reader;
+package com.tttsaurus.saurus3d.common.core.commonutils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResource;
@@ -8,7 +8,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public final class RlReaderUtils
+public final class RLReaderUtils
 {
     // notice: ResourceLocation only supports lower case
     @Nonnull

@@ -1,4 +1,4 @@
-package com.tttsaurus.saurus3d.common.core;
+package com.tttsaurus.saurus3d.common.core.commonutils;
 
 import com.tttsaurus.saurus3d.common.core.function.Func;
 import com.tttsaurus.saurus3d.common.core.function.Func_1Param;
@@ -10,7 +10,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import java.nio.FloatBuffer;
 
-public class RenderUtils
+public final class MinecraftRenderUtils
 {
     //<editor-fold desc="active render info">
     // inspired by <https://github.com/Laike-Endaril/Fantastic-Lib/blob/669c3306bbebca9de1c3959e6dd4203b5b7215d4/src/main/java/com/fantasticsource/mctools/Render.java>
