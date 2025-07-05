@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 
-public class PBO extends GLDisposable
+public class UnpackPBO extends GLDisposable
 {
     private BufferID pboID = null;
     private int pboSize;

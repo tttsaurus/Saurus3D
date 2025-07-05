@@ -2,7 +2,7 @@ package com.tttsaurus.saurus3d.mcpatches.impl.texturemap;
 
 import com.tttsaurus.saurus3d.common.core.buffer.BufferUploadHint;
 import com.tttsaurus.saurus3d.common.core.buffer.MapBufferAccessBit;
-import com.tttsaurus.saurus3d.common.core.buffer.PBO;
+import com.tttsaurus.saurus3d.common.core.buffer.UnpackPBO;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.ITextureUploader;
 import com.tttsaurus.saurus3d.mcpatches.api.texturemap.TexRect;
@@ -17,7 +17,7 @@ import java.util.concurrent.Executor;
 
 public final class TextureUploaderV2 implements ITextureUploader
 {
-    private final List<List<PBO>> pboLists = new ArrayList<>();
+    private final List<List<UnpackPBO>> pboLists = new ArrayList<>();
     private int bufferSize;
     private int bufferingNum;
     private int bufferingIndex;
@@ -39,9 +39,9 @@ public final class TextureUploaderV2 implements ITextureUploader
     private final Map<Integer, CompletableFuture<?>> mergingProcesses = new HashMap<>();
     private boolean skipFirstTick;
 
-    private static void rotateLeftByOne(List<PBO> list)
+    private static void rotateLeftByOne(List<UnpackPBO> list)
     {
-        PBO first = list.get(0);
+        UnpackPBO first = list.get(0);
         for (int i = 1; i < list.size(); i++)
             list.set(i - 1, list.get(i));
         list.set(list.size() - 1, first);
@@ -54,11 +54,11 @@ public final class TextureUploaderV2 implements ITextureUploader
         int size = bufferSize;
         if (level != 0) size = size / d + 128;
 
-        List<PBO> list = new ArrayList<>();
+        List<UnpackPBO> list = new ArrayList<>();
         for (int i = 0; i < bufferingNum; i++)
         {
-            PBO pbo = new PBO();
-            pbo.setPboID(PBO.genPboID());
+            UnpackPBO pbo = new UnpackPBO();
+            pbo.setPboID(UnpackPBO.genPboID());
             pbo.allocNewGpuMem(size, BufferUploadHint.STREAM_DRAW);
             list.add(pbo);
         }
@@ -235,7 +235,7 @@ public final class TextureUploaderV2 implements ITextureUploader
 
             // complete pboLists and mergedDataContainer in the first tick
             if (pboLists.size() < len && index > pboLists.size() - 1) extendPboList(level);
-            List<PBO> pbos = pboLists.get(index);
+            List<UnpackPBO> pbos = pboLists.get(index);
             int[] merged = mergedDataContainer.computeIfAbsent(level, k -> new int[bigRect.width * bigRect.height]);
 
             boolean mergedReady = false;
@@ -253,7 +253,7 @@ public final class TextureUploaderV2 implements ITextureUploader
 
             if (!skipFirstTick)
             {
-                PBO pboToUpload;
+                UnpackPBO pboToUpload;
                 if (!firstCycle)
                 {
                     pboToUpload = pbos.get(bufferingIndex);
@@ -261,7 +261,7 @@ public final class TextureUploaderV2 implements ITextureUploader
                 }
                 else
                 {
-                    PBO pboToUse = pbos.get(0);
+                    UnpackPBO pboToUse = pbos.get(0);
                     GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, pboToUse.getPboID().getID());
                     GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, level, bigRect.x, bigRect.y, bigRect.width, bigRect.height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, 0);
                     rotateLeftByOne(pbos);
@@ -297,9 +297,9 @@ public final class TextureUploaderV2 implements ITextureUploader
     @Override
     public void dispose()
     {
-        for (List<PBO> pbos: pboLists)
+        for (List<UnpackPBO> pbos: pboLists)
         {
-            for (PBO pbo: pbos)
+            for (UnpackPBO pbo: pbos)
             {
                 pbo.dispose();
                 GLResourceManager.removeDisposable(pbo);
