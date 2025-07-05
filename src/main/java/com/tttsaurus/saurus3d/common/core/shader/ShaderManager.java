@@ -44,7 +44,7 @@ public final class ShaderManager
             if (!shader.getValidity())
             {
                 StringBuilder builder = new StringBuilder();
-                builder.append("Shader Compile Error: ").append(shader.getErrorLog()).append(".\n").append("\tThis ShaderManager.loadShader() call is executed at: ");
+                builder.append("Shader Compile Error from ").append(rl).append(":\n").append(shader.getErrorLog()).append("\n").append("\tThis ShaderManager.loadShader() call is executed at: ");
 
                 if (caller == null)
                     builder.append("Can't find");

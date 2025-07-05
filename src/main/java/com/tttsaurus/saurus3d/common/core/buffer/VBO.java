@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryStack;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class VBO extends GLDisposable
@@ -84,11 +85,28 @@ public class VBO extends GLDisposable
     //</editor-fold>
 
     //<editor-fold desc="upload">
-    public void directUpload(float[] arr)
+    public void directUpload(float[] arr, boolean useMemoryStack)
     {
-        try (MemoryStack stack = MemoryStack.stackPush())
+        if (useMemoryStack)
         {
-            ByteBuffer byteBuffer = stack.malloc(4, arr.length * Float.BYTES);
+            try (MemoryStack stack = MemoryStack.stackPush())
+            {
+                ByteBuffer byteBuffer = stack.malloc(4, arr.length * Float.BYTES);
+
+                FloatBuffer floatView = byteBuffer.asFloatBuffer();
+                floatView.put(arr);
+
+                byteBuffer.limit(floatView.limit() * Float.BYTES);
+                byteBuffer.position(0);
+
+                directUpload(byteBuffer);
+            }
+        }
+        else
+        {
+            ByteBuffer byteBuffer = ByteBuffer
+                    .allocateDirect(arr.length * Float.BYTES)
+                    .order(ByteOrder.nativeOrder());
 
             FloatBuffer floatView = byteBuffer.asFloatBuffer();
             floatView.put(arr);
@@ -98,6 +116,7 @@ public class VBO extends GLDisposable
 
             directUpload(byteBuffer);
         }
+
     }
     public void directUpload(ByteBuffer byteBuffer)
     {

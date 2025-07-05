@@ -338,7 +338,7 @@ public class ShaderProgram extends GLDisposable
     }
 
     @Override
-    public int priority()
+    public int disposePriority()
     {
         return 1000;
     }

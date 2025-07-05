@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL21;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 
 public class UnpackPBO extends GLDisposable
@@ -84,11 +85,28 @@ public class UnpackPBO extends GLDisposable
     //</editor-fold>
 
     //<editor-fold desc="upload">
-    public void directUpload(int[] arr)
+    public void directUpload(int[] arr, boolean useMemoryStack)
     {
-        try (MemoryStack stack = MemoryStack.stackPush())
+        if (useMemoryStack)
         {
-            ByteBuffer byteBuffer = stack.malloc(4, arr.length * Integer.BYTES);
+            try (MemoryStack stack = MemoryStack.stackPush())
+            {
+                ByteBuffer byteBuffer = stack.malloc(4, arr.length * Integer.BYTES);
+
+                IntBuffer intView = byteBuffer.asIntBuffer();
+                intView.put(arr);
+
+                byteBuffer.limit(intView.limit() * Integer.BYTES);
+                byteBuffer.position(0);
+
+                directUpload(byteBuffer);
+            }
+        }
+        else
+        {
+            ByteBuffer byteBuffer = ByteBuffer
+                    .allocateDirect(arr.length * Integer.BYTES)
+                    .order(ByteOrder.nativeOrder());
 
             IntBuffer intView = byteBuffer.asIntBuffer();
             intView.put(arr);

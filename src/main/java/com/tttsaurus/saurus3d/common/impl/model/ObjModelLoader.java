@@ -130,12 +130,12 @@ public class ObjModelLoader implements IModelLoader
         EBO ebo = new EBO();
         ebo.setAutoUnbind(true);
         ebo.setEboID(EBO.genEboID());
-        ebo.directUpload(indices);
+        ebo.directUpload(indices, false);
 
         VBO vbo = new VBO();
         vbo.setAutoUnbind(true);
         vbo.setVboID(VBO.genVboID());
-        vbo.directUpload(vertexData);
+        vbo.directUpload(vertexData, false);
 
         return new Mesh(layout, ebo, vbo);
     }

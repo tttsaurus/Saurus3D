@@ -78,7 +78,7 @@ public class Shader extends GLDisposable
     }
 
     @Override
-    public int priority()
+    public int disposePriority()
     {
         return 900;
     }
