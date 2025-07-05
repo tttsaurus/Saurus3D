@@ -20,7 +20,7 @@ public final class GLDebug
         while ((error = GL11.glGetError()) != GL11.GL_NO_ERROR)
         {
             StringBuilder builder = new StringBuilder();
-            builder.append("OpenGL Error: ").append(getErrorString(error)).append(".\n").append("This debug is executed manually at: ");
+            builder.append("OpenGL Error: ").append(getErrorString(error)).append(".\n").append("\tThis debug is executed manually at: ");
 
             if (caller == null)
                 builder.append("Can't find");

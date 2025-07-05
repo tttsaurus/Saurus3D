@@ -36,9 +36,11 @@ public class MyVboRenderList extends ChunkRenderContainer
         {
             if (program == null)
             {
-                Shader frag = ShaderManager.loadShader("saurus3d:shaders/chunk_frag.glsl", Shader.ShaderType.FRAGMENT);
-                Shader vert = ShaderManager.loadShader("saurus3d:shaders/chunk_vert.glsl", Shader.ShaderType.VERTEX);
-                program = new ShaderProgram(frag, vert);
+                ShaderManager.loadShader("saurus3d:shaders/chunk_frag.glsl", Shader.ShaderType.FRAGMENT);
+                ShaderManager.loadShader("saurus3d:shaders/chunk_vert.glsl", Shader.ShaderType.VERTEX);
+                Shader frag = ShaderManager.getShader("saurus3d:shaders/chunk_frag.glsl");
+                Shader vert = ShaderManager.getShader("saurus3d:shaders/chunk_frag.glsl");
+                program = ShaderManager.createShaderProgram("test_program", frag, vert);
                 program.setup();
                 Saurus3D.LOGGER.info(program.getSetupDebugReport());
             }

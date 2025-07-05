@@ -154,10 +154,12 @@ public final class Test
 
             mesh.setup();
 
-            Shader vertex = ShaderManager.loadShader("saurus3d:obj/test/shader_vertex.glsl", Shader.ShaderType.VERTEX);
-            Shader frag = ShaderManager.loadShader("saurus3d:obj/test/shader_frag.glsl", Shader.ShaderType.FRAGMENT);
+            ShaderManager.loadShader("saurus3d:obj/test/shader_vertex.glsl", Shader.ShaderType.VERTEX);
+            ShaderManager.loadShader("saurus3d:obj/test/shader_frag.glsl", Shader.ShaderType.FRAGMENT);
+            Shader vertex = ShaderManager.getShader("saurus3d:obj/test/shader_vertex.glsl");
+            Shader frag = ShaderManager.getShader("saurus3d:obj/test/shader_frag.glsl");
 
-            shaderProgram = new ShaderProgram(vertex, frag);
+            shaderProgram = ShaderManager.createShaderProgram("a", vertex, frag);
             shaderProgram.setup();
 
             Saurus3D.LOGGER.info(shaderProgram.getSetupDebugReport());

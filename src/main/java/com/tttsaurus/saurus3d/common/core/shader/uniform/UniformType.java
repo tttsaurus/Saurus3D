@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// especially for glsl 330
-
 // should only get this from UniformParseUtils
 public class UniformType
 {

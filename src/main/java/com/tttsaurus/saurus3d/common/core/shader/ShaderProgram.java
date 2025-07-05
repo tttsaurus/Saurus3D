@@ -78,7 +78,7 @@ public class ShaderProgram extends GLDisposable
         return null;
     }
 
-    public ShaderProgram(Shader... shaders)
+    protected ShaderProgram(Shader... shaders)
     {
         for (Shader shader: shaders)
             if (!shader.getSetup())

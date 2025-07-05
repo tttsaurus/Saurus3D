@@ -3,6 +3,7 @@ package com.tttsaurus.saurus3d.common.core.shader;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import com.tttsaurus.saurus3d.common.core.gl.resource.GLDisposable;
 import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformField;
+import com.tttsaurus.saurus3d.common.core.shader.uniform.UniformParseUtils;
 import org.lwjgl.opengl.*;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class Shader extends GLDisposable
         this.shaderSource = shaderSource;
         this.shaderType = shaderType;
 
-        uniformFields = ShaderParseUtils.getUniformFields(shaderSource);
+        uniformFields = UniformParseUtils.getUniformFields(shaderSource);
     }
 
     protected void compile()
