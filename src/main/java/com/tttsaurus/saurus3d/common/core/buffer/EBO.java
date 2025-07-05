@@ -192,7 +192,8 @@ public class EBO extends GLDisposable
         {
             mappedBuffer.position(offset);
             mappedBuffer.put(byteBuffer);
-            GL15.glUnmapBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER);
+            boolean success = GL15.glUnmapBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER);
+            if (!success) throw new GLIllegalStateException("Buffer unmap failed, data may be corrupted.");
         }
         else
             throw new GLMapBufferException("Failed to map buffer.");

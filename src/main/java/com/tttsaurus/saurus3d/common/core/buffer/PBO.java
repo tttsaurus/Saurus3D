@@ -220,7 +220,8 @@ public class PBO extends GLDisposable
             mappedBuffer.position(offset);
             IntBuffer intView = mappedBuffer.asIntBuffer();
             intView.put(data);
-            GL15.glUnmapBuffer(GL21.GL_PIXEL_UNPACK_BUFFER);
+            boolean success = GL15.glUnmapBuffer(GL21.GL_PIXEL_UNPACK_BUFFER);
+            if (!success) throw new GLIllegalStateException("Buffer unmap failed, data may be corrupted.");
         }
         else
             throw new GLMapBufferException("Failed to map buffer.");

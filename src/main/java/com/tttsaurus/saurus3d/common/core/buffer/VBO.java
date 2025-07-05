@@ -9,6 +9,7 @@ import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL45;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -174,12 +175,111 @@ public class VBO extends GLDisposable
         {
             mappedBuffer.position(offset);
             mappedBuffer.put(byteBuffer);
-            GL15.glUnmapBuffer(GL15.GL_ARRAY_BUFFER);
+            boolean success = GL15.glUnmapBuffer(GL15.GL_ARRAY_BUFFER);
+            if (!success) throw new GLIllegalStateException("Buffer unmap failed, data may be corrupted.");
         }
         else
             throw new GLMapBufferException("Failed to map buffer.");
 
         if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="persistent buffer">
+    private ByteBuffer persistentMappedBuffer = null;
+
+    public void allocPersistentStorage(int size)
+    {
+        allocPersistentStorage(size, MapBufferAccessBit.WRITE_BIT, MapBufferAccessBit.MAP_PERSISTENT_BIT, MapBufferAccessBit.MAP_COHERENT_BIT);
+    }
+    public void allocPersistentStorage(int size, MapBufferAccessBit... accessBits)
+    {
+        if (vboID == null)
+            throw new GLIllegalBufferIDException("Must set a VBO ID first.");
+        if (size < 0)
+            throw new GLIllegalStateException("Cannot have negative size.");
+
+        int prevVbo = 0;
+        if (autoUnbind) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+
+        int access = 0;
+        for (MapBufferAccessBit bit: accessBits)
+            access |= bit.glValue;
+
+        GL45.glBufferStorage(GL15.GL_ARRAY_BUFFER, size, access);
+
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+
+        vboSize = size;
+    }
+
+    public void mapPersistentBuffer(int offset, int length)
+    {
+        mapPersistentBuffer(offset, length, MapBufferAccessBit.WRITE_BIT, MapBufferAccessBit.MAP_PERSISTENT_BIT, MapBufferAccessBit.MAP_COHERENT_BIT);
+    }
+    public void mapPersistentBuffer(int offset, int length, MapBufferAccessBit... accessBits)
+    {
+        if (vboID == null)
+            throw new GLIllegalBufferIDException("Must set a VBO ID first.");
+        if (persistentMappedBuffer != null)
+            throw new GLIllegalStateException("Buffer already mapped persistently.");
+        if (offset < 0)
+            throw new GLOverflowException("Cannot have negative offset.");
+        if (offset + length > vboSize)
+            throw new GLOverflowException("Allocated VBO size must be greater than or equal to offset + length.");
+
+        int prevVbo = 0;
+        if (autoUnbind) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+
+        int access = 0;
+        for (MapBufferAccessBit bit: accessBits)
+            access |= bit.glValue;
+
+        persistentMappedBuffer = GL45.glMapBufferRange(GL15.GL_ARRAY_BUFFER, offset, length, access, persistentMappedBuffer);
+
+        if (persistentMappedBuffer == null)
+            throw new GLMapBufferException("Failed to map persistent buffer.");
+
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+    }
+
+    public void unmapPersistentBuffer()
+    {
+        if (persistentMappedBuffer == null)
+            throw new GLIllegalStateException("Buffer not persistently mapped.");
+
+        int prevVbo = 0;
+        if (autoUnbind) prevVbo = GL11.glGetInteger(GL15.GL_ARRAY_BUFFER_BINDING);
+        if (autoBind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID.id);
+
+        boolean success = GL15.glUnmapBuffer(GL15.GL_ARRAY_BUFFER);
+        if (!success) throw new GLIllegalStateException("Persistent buffer unmap failed, data may be corrupted.");
+
+        persistentMappedBuffer = null;
+
+        if (autoUnbind) GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, prevVbo);
+    }
+
+    public void writePersistent(int offset, ByteBuffer byteBuffer)
+    {
+        if (persistentMappedBuffer == null)
+            throw new GLIllegalStateException("Buffer not persistently mapped.");
+        if (offset < 0)
+            throw new GLOverflowException("Cannot have negative offset.");
+        if (offset + byteBuffer.remaining() > persistentMappedBuffer.remaining())
+            throw new GLOverflowException("persistentMappedBuffer.remaining() must be greater than or equal to offset + byteBuffer.remaining().");
+
+        int pos = persistentMappedBuffer.position();
+        persistentMappedBuffer.position(offset);
+        persistentMappedBuffer.put(byteBuffer);
+        persistentMappedBuffer.position(pos);
+    }
+
+    public ByteBuffer getPersistentMappedBuffer()
+    {
+        return persistentMappedBuffer;
     }
     //</editor-fold>
 
