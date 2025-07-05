@@ -9,6 +9,8 @@ import com.tttsaurus.saurus3d.common.core.gl.resource.GLResourceManager;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.system.MemoryStack;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -93,17 +95,18 @@ public class EBO extends GLDisposable
     //<editor-fold desc="upload">
     public void directUpload(int[] arr)
     {
-        ByteBuffer byteBuffer = ByteBuffer
-                .allocateDirect(arr.length * Integer.BYTES)
-                .order(ByteOrder.nativeOrder());
+        try (MemoryStack stack = MemoryStack.stackPush())
+        {
+            ByteBuffer byteBuffer = stack.malloc(4, arr.length * Integer.BYTES);
 
-        IntBuffer intView = byteBuffer.asIntBuffer();
-        intView.put(arr);
+            IntBuffer intView = byteBuffer.asIntBuffer();
+            intView.put(arr);
 
-        byteBuffer.limit(intView.limit() * Integer.BYTES);
-        byteBuffer.position(0);
+            byteBuffer.limit(intView.limit() * Integer.BYTES);
+            byteBuffer.position(0);
 
-        directUpload(byteBuffer);
+            directUpload(byteBuffer);
+        }
     }
     public void directUpload(ByteBuffer byteBuffer)
     {
