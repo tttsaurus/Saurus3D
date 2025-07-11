@@ -50,7 +50,7 @@ public class MyVboRenderList extends ChunkRenderContainer
             program.setUniform("projection", MinecraftRenderUtils.getProjectionMatrix());
             program.setUniform("tex", 0);
             program.setUniform("lightmap", 1);
-            program.setUniform("camPos", MinecraftRenderUtils.getCameraPos().x, MinecraftRenderUtils.getCameraPos().y, MinecraftRenderUtils.getCameraPos().z);
+            program.setUniform("camPos", MinecraftRenderUtils.getWorldOffset().x, MinecraftRenderUtils.getWorldOffset().y, MinecraftRenderUtils.getWorldOffset().z);
             program.unuse();
 
             for (RenderChunk renderChunk : renderChunks)
