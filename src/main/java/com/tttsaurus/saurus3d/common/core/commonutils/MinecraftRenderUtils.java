@@ -6,6 +6,7 @@ import com.tttsaurus.saurus3d.common.core.reflection.AccessorUnreflector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import java.nio.FloatBuffer;
@@ -60,18 +61,13 @@ public final class MinecraftRenderUtils
     //</editor-fold>
 
     //<editor-fold desc="camera">
-    public static Vector3f getCameraPos()
+    public static Vector3f getCameraPosition()
     {
-        double partialTick = getPartialTick();
-
-        Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-        if (viewEntity == null) return new Vector3f(0, 0, 0);
-
-        double camX = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * partialTick;
-        double camY = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * partialTick;
-        double camZ = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * partialTick;
-
-        return new Vector3f((float)camX, (float)camY, (float)camZ);
+        Entity camera = Minecraft.getMinecraft().getRenderViewEntity();
+        if (camera == null)
+            camera = Minecraft.getMinecraft().player;
+        Vec3d vec3d = camera.getPositionVector().add(ActiveRenderInfo.getCameraPosition());
+        return new Vector3f((float)vec3d.x, (float)vec3d.y, (float)vec3d.z);
     }
     public static Vector2f getCameraRotationInDegree()
     {
